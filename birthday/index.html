@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday Countdown 🎀</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffd6e7 0%, #ffb3c6 25%, #ffc8dd 50%, #d4b0f5 75%, #b5d8ff 100%);
+      overflow-x: hidden;
+      font-family: 'Poppins', sans-serif;
+      position: relative;
+    }
+
+    /* Floating sparkles */
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      animation: floatUp linear infinite;
+      z-index: 0;
+      font-size: 1.2rem;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ===== SCATTERED CHARACTER IMAGES ===== */
+    .character {
+      position: fixed;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(255,150,200,0.35);
+      object-fit: cover;
+      z-index: 1;
+      animation: wiggle ease-in-out infinite, floatBob ease-in-out infinite;
+      border: 4px solid rgba(255,255,255,0.7);
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(var(--rot-base)); }
+      50%       { transform: rotate(calc(var(--rot-base) + 6deg)); }
+    }
+    @keyframes floatBob {
+      0%, 100% { margin-top: 0px; }
+      50%       { margin-top: -12px; }
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-wrapper {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(20px);
+      border-radius: 40px;
+      padding: 50px 60px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(200,100,180,0.3), 0 0 0 2px rgba(255,255,255,0.6);
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .crown { font-size: 3rem; margin-bottom: 10px; animation: bounce 1s ease-in-out infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+
+    h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      background: linear-gradient(135deg, #e91e8c, #9c27b0, #e91e8c);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 3s linear infinite;
+      margin-bottom: 6px;
+    }
+    @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #c06;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    /* ===== WIFE PHOTO PLACEHOLDER ===== */
+    .photo-frame {
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      margin: 0 auto 30px;
+      border: 5px solid white;
+      box-shadow: 0 0 0 4px #f06292, 0 10px 30px rgba(240,98,146,0.4);
+      overflow: hidden;
+      background: linear-gradient(135deg, #ffd6e7, #d4b0f5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: #c06;
+      font-style: italic;
+    }
+    .photo-frame img { width:100%; height:100%; object-fit:cover; }
+
+    /* ===== COUNTDOWN ===== */
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .time-block {
+      background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,220,240,0.8));
+      border-radius: 20px;
+      padding: 16px 8px;
+      box-shadow: 0 4px 20px rgba(200,100,180,0.2);
+    }
+
+    .time-num {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 600;
+      color: #c2185b;
+      line-height: 1;
+      display: block;
+      font-family: 'Poppins', monospace;
+    }
+
+    .time-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #e91e8c;
+      margin-top: 6px;
+      display: block;
+    }
+
+    /* ===== BIRTHDAY MESSAGE ===== */
+    .birthday-msg {
+      display: none;
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.5rem;
+      color: #c2185b;
+      animation: pulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.06)} }
+
+    .hearts-row {
+      font-size: 1.5rem;
+      letter-spacing: 6px;
+      margin-top: 16px;
+    }
+
+    .date-label {
+      font-size: 0.9rem;
+      color: #ab47bc;
+      margin-top: 10px;
+    }
+    .date-label span {
+      font-weight: 600;
+      color: #880e4f;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SCATTERED CHARACTERS ===== -->
+<!-- Hello Kitty images -->
+<img class="character" style="width:130px;height:130px;top:4%;left:2%;--rot-base:-8deg;animation-duration:3.5s,4s"
+     src="https://upload.wikimedia.org/wikipedia/en/0/05/Hello_kitty_character_portrait.png" alt="Hello Kitty"
+     onerror="this.src='https://placehold.co/130x130/ffb3c6/c2185b?text=🐱'"/>
+
+<img class="character" style="width:110px;height:110px;top:8%;right:3%;--rot-base:6deg;animation-duration:4s,5s"
+     src="https://upload.wikimedia.org/wikipedia/en/0/05/Hello_kitty_character_portrait.png" alt="Hello Kitty"
+     onerror="this.src='https://placehold.co/110x110/ffd6e7/c2185b?text=🐱'"/>
+
+<!-- Ariel - Little Mermaid -->
+<img class="character" style="width:140px;height:180px;top:55%;left:1%;--rot-base:-5deg;animation-duration:4.5s,6s;border-radius:50% 50% 30% 30%"
+     src="https://upload.wikimedia.org/wikipedia/en/0/08/Ariel_from_The_Little_Mermaid.png" alt="Ariel"
+     onerror="this.src='https://placehold.co/140x180/b5d8ff/0d47a1?text=🧜‍♀️+Ariel'"/>
+
+<img class="character" style="width:120px;height:160px;bottom:5%;right:1%;--rot-base:7deg;animation-duration:5s,5.5s;border-radius:50% 50% 30% 30%"
+     src="https://upload.wikimedia.org/wikipedia/en/0/08/Ariel_from_The_Little_Mermaid.png" alt="Ariel"
+     onerror="this.src='https://placehold.co/120x160/b5d8ff/0d47a1?text=🧜‍♀️'"/>
+
+<!-- Disney Princess -->
+<img class="character" style="width:125px;height:160px;bottom:12%;left:2%;--rot-base:4deg;animation-duration:3.8s,4.5s"
+     src="https://upload.wikimedia.org/wikipedia/en/d/df/Disney_Princess_logo.png" alt="Disney Princess"
+     onerror="this.src='https://placehold.co/125x160/d4b0f5/6a1b9a?text=👑+Princess'"/>
+
+<img class="character" style="width:110px;height:140px;top:25%;right:2%;--rot-base:-10deg;animation-duration:5.2s,6.2s"
+     src="https://upload.wikimedia.org/wikipedia/en/d/df/Disney_Princess_logo.png" alt="Disney Princess"
+     onerror="this.src='https://placehold.co/110x140/d4b0f5/6a1b9a?text=👑'"/>
+
+<!-- Lady and the Tramp -->
+<img class="character" style="width:150px;height:120px;bottom:18%;right:2%;--rot-base:-4deg;animation-duration:4.2s,5s"
+     src="https://upload.wikimedia.org/wikipedia/en/4/48/Lady_and_the_tramp_ver3.jpg" alt="Lady and the Tramp"
+     onerror="this.src='https://placehold.co/150x120/fff3e0/e65100?text=🐾+Lady+%26+Tramp'"/>
+
+<img class="character" style="width:120px;height:100px;top:42%;left:1%;--rot-base:8deg;animation-duration:3.6s,4.8s"
+     src="https://upload.wikimedia.org/wikipedia/en/4/48/Lady_and_the_tramp_ver3.jpg" alt="Lady and the Tramp"
+     onerror="this.src='https://placehold.co/120x100/fff3e0/e65100?text=🐾'"/>
+
+<!-- Jellycat plush -->
+<img class="character" style="width:100px;height:100px;top:2%;left:40%;--rot-base:-12deg;animation-duration:4.8s,5.5s;border-radius:40%"
+     src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Brown_bear.jpg/800px-Brown_bear.jpg" alt="Jellycat"
+     onerror="this.src='https://placehold.co/100x100/ffe0cc/8d3e00?text=🐻+Jellycat'"/>
+
+<img class="character" style="width:115px;height:115px;bottom:2%;left:35%;--rot-base:9deg;animation-duration:5.5s,6s;border-radius:40%"
+     src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Brown_bear.jpg/800px-Brown_bear.jpg" alt="Jellycat"
+     onerror="this.src='https://placehold.co/115x115/ffe0cc/8d3e00?text=🧸+Jellycat'"/>
+
+<img class="character" style="width:90px;height:90px;top:65%;right:3%;--rot-base:-6deg;animation-duration:4s,5s;border-radius:40%"
+     src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Brown_bear.jpg/800px-Brown_bear.jpg" alt="Jellycat"
+     onerror="this.src='https://placehold.co/90x90/ffe0cc/8d3e00?text=🧸'"/>
+
+<!-- Extra hello kitty / kitten -->
+<img class="character" style="width:95px;height:95px;bottom:35%;left:0.5%;--rot-base:12deg;animation-duration:6s,7s"
+     src="https://upload.wikimedia.org/wikipedia/en/0/05/Hello_kitty_character_portrait.png" alt="Kitty"
+     onerror="this.src='https://placehold.co/95x95/ffb3c6/880e4f?text=🐱'"/>
+
+<img class="character" style="width:85px;height:85px;top:50%;right:0.5%;--rot-base:-14deg;animation-duration:5.8s,6.5s"
+     src="https://upload.wikimedia.org/wikipedia/en/0/05/Hello_kitty_character_portrait.png" alt="Kitty"
+     onerror="this.src='https://placehold.co/85x85/ffb3c6/880e4f?text=🐱'"/>
+
+<!-- Floating sparkles generated by JS -->
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="main-wrapper">
+  <div class="card">
+    <div class="crown">👑</div>
+    <h1>My Beautiful Wife</h1>
+    <p class="subtitle">Birthday Countdown ✨</p>
+
+    <!-- PHOTO — place your photo as birthday/wife.jpg to display it here -->
+    <div class="photo-frame" id="photoFrame">
+      <img src="wife.jpg" alt="My Beautiful Wife"
+           onerror="this.parentElement.innerHTML='<div style=\'text-align:center;padding:16px;color:#c06\'>🌸<br><small>Place wife.jpg here</small></div>'" />
+    </div>
+
+    <div id="countdown-section">
+      <p class="date-label">Counting down to <span>18 April 🎂</span></p>
+      <div class="countdown-grid" style="margin-top:20px">
+        <div class="time-block"><span class="time-num" id="days">--</span><span class="time-label">Days</span></div>
+        <div class="time-block"><span class="time-num" id="hours">--</span><span class="time-label">Hours</span></div>
+        <div class="time-block"><span class="time-num" id="minutes">--</span><span class="time-label">Minutes</span></div>
+        <div class="time-block"><span class="time-num" id="seconds">--</span><span class="time-label">Seconds</span></div>
+      </div>
+    </div>
+
+    <div class="birthday-msg" id="birthday-msg">
+      🎉 Happy Birthday My Love! 🎉
+    </div>
+
+    <div class="hearts-row">💗 💖 💝 💗 💖 💝</div>
+  </div>
+</div>
+
+<script>
+  // ===== COUNTDOWN TIMER =====
+  function getTargetDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    let target = new Date(year, 3, 18, 0, 0, 0); // April 18 (month is 0-indexed)
+    if (now >= target) {
+      // If today is past April 18, count to next year
+      target = new Date(year + 1, 3, 18, 0, 0, 0);
+    }
+    return target;
+  }
+
+  function updateCountdown() {
+    const now = new Date();
+    const target = getTargetDate();
+    const diff = target - now;
+
+    const isBirthday = diff <= 0 ||
+      (now.getMonth() === 3 && now.getDate() === 18);
+
+    if (isBirthday) {
+      document.getElementById('countdown-section').style.display = 'none';
+      document.getElementById('birthday-msg').style.display = 'block';
+      launchConfetti();
+      return;
+    }
+
+    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('days').textContent    = String(days).padStart(2,'0');
+    document.getElementById('hours').textContent   = String(hours).padStart(2,'0');
+    document.getElementById('minutes').textContent = String(minutes).padStart(2,'0');
+    document.getElementById('seconds').textContent = String(seconds).padStart(2,'0');
+  }
+
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ===== FLOATING SPARKLES =====
+  const sparkleSymbols = ['✨','💖','🌸','⭐','💫','🎀','💕','🌺','🦋','💎'];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('div');
+    el.className = 'sparkle';
+    el.textContent = sparkleSymbols[Math.floor(Math.random() * sparkleSymbols.length)];
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.fontSize = (0.8 + Math.random() * 1.4) + 'rem';
+    el.style.animationDuration = (6 + Math.random() * 10) + 's';
+    el.style.animationDelay = '-' + Math.random() * 12 + 's';
+    document.body.appendChild(el);
+  }
+
+  // ===== SIMPLE CONFETTI ON BIRTHDAY =====
+  function launchConfetti() {
+    const colors = ['#ff69b4','#ffd700','#ff1493','#da70d6','#87ceeb'];
+    for (let i = 0; i < 80; i++) {
+      const c = document.createElement('div');
+      c.style.cssText = `
+        position:fixed; width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:50%; left:${Math.random()*100}vw; top:-10px;
+        animation: fall ${2+Math.random()*3}s linear ${Math.random()*2}s forwards;
+        z-index:999; pointer-events:none;
+      `;
+      document.body.appendChild(c);
+    }
+    const style = document.createElement('style');
+    style.textContent = `@keyframes fall { to { transform: translateY(110vh) rotate(720deg); opacity:0; } }`;
+    document.head.appendChild(style);
+  }
+</script>
+</body>
+</html>
