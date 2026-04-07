@@ -69,7 +69,7 @@
       background: rgba(255,255,255,0.65);
       backdrop-filter: blur(20px);
       border-radius: 40px;
-      padding: 50px 60px;
+      padding: 40px 24px;
       text-align: center;
       box-shadow: 0 20px 60px rgba(200,100,180,0.3), 0 0 0 2px rgba(255,255,255,0.6);
       max-width: 700px;
@@ -123,19 +123,21 @@
     .countdown-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      gap: 8px;
       margin-bottom: 30px;
+      width: 100%;
     }
 
     .time-block {
       background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,220,240,0.8));
-      border-radius: 20px;
-      padding: 16px 8px;
+      border-radius: 16px;
+      padding: 12px 4px;
       box-shadow: 0 4px 20px rgba(200,100,180,0.2);
+      min-width: 0;
     }
 
     .time-num {
-      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-size: clamp(1.4rem, 4vw, 2.6rem);
       font-weight: 600;
       color: #c2185b;
       line-height: 1;
@@ -144,9 +146,9 @@
     }
 
     .time-label {
-      font-size: 0.7rem;
+      font-size: clamp(0.5rem, 1.5vw, 0.7rem);
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       color: #e91e8c;
       margin-top: 6px;
       display: block;
