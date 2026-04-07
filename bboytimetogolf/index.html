@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BBoy Time To Golf</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(0,200,80,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(0,80,200,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 60% 80%, rgba(200,0,80,0.08) 0%, transparent 60%);
+      animation: bgpulse 8s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes bgpulse {
+      0%   { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      z-index: 1;
+    }
+
+    .headline {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.4rem, 4.5vw, 3.2rem);
+      letter-spacing: 0.08em;
+      line-height: 1.15;
+      text-transform: uppercase;
+      margin-bottom: 0.4em;
+      background: linear-gradient(135deg, #00ff88, #00cfff, #ff3cac, #ffdd00);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientshift 5s ease infinite;
+    }
+    @keyframes gradientshift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .sub {
+      font-size: clamp(0.9rem, 2vw, 1.2rem);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 3rem;
+    }
+
+    .clock {
+      display: flex;
+      gap: clamp(1rem, 3vw, 2.5rem);
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .unit-box {
+      width: clamp(80px, 18vw, 140px);
+      height: clamp(80px, 18vw, 140px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      backdrop-filter: blur(6px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .unit-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+      border-radius: inherit;
+    }
+
+    .unit-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(0,255,136,0.5), 0 0 60px rgba(0,255,136,0.2);
+    }
+
+    .unit-number.tick {
+      animation: pop 0.3s ease;
+    }
+    @keyframes pop {
+      0%   { transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
+    .unit-label {
+      margin-top: 0.5rem;
+      font-size: clamp(0.65rem, 1.5vw, 0.85rem);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #555;
+    }
+
+    .separator {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: rgba(255,255,255,0.15);
+      align-self: flex-start;
+      padding-top: clamp(16px, 3vw, 32px);
+      user-select: none;
+    }
+
+    .finished {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 7vw, 5rem);
+      background: linear-gradient(135deg, #00ff88, #ffdd00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientshift 3s ease infinite;
+    }
+
+    .target-date {
+      margin-top: 2.5rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      color: #444;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="headline">Countdown of<br>Billion Brilliant Badass<br>But Bitchass BBoy<br>Back to Golf</div>
+    <div class="sub">The clock is ticking &mdash; get those clubs ready</div>
+
+    <div class="clock" id="clock">
+      <div class="unit">
+        <div class="unit-box"><span class="unit-number" id="days">00</span></div>
+        <div class="unit-label">Days</div>
+      </div>
+      <div class="separator">:</div>
+      <div class="unit">
+        <div class="unit-box"><span class="unit-number" id="hours">00</span></div>
+        <div class="unit-label">Hours</div>
+      </div>
+      <div class="separator">:</div>
+      <div class="unit">
+        <div class="unit-box"><span class="unit-number" id="minutes">00</span></div>
+        <div class="unit-label">Minutes</div>
+      </div>
+      <div class="separator">:</div>
+      <div class="unit">
+        <div class="unit-box"><span class="unit-number" id="seconds">00</span></div>
+        <div class="unit-label">Seconds</div>
+      </div>
+    </div>
+
+    <div class="target-date">Target: 26 May 2026 &mdash; 7 weeks from today</div>
+  </div>
+
+  <script>
+    // 7 weeks from 2026-04-07
+    const target = new Date('2026-05-26T00:00:00').getTime();
+
+    const pad = n => String(n).padStart(2, '0');
+
+    function tick(id, val) {
+      const el = document.getElementById(id);
+      const newVal = pad(val);
+      if (el.textContent !== newVal) {
+        el.textContent = newVal;
+        el.classList.remove('tick');
+        void el.offsetWidth;
+        el.classList.add('tick');
+      }
+    }
+
+    function update() {
+      const now = Date.now();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        document.getElementById('clock').innerHTML =
+          '<div class="finished">Tee Time! ⛳</div>';
+        return;
+      }
+
+      const days    = Math.floor(diff / 86400000);
+      const hours   = Math.floor((diff % 86400000) / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+
+      tick('days',    days);
+      tick('hours',   hours);
+      tick('minutes', minutes);
+      tick('seconds', seconds);
+    }
+
+    update();
+    setInterval(update, 1000);
+  </script>
+</body>
+</html>
