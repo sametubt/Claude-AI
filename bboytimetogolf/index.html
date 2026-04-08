@@ -38,15 +38,28 @@
       100% { opacity: 1; }
     }
 
+    /* flying golf words */
+    .floater {
+      position: fixed;
+      font-family: 'Bebas Neue', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      will-change: transform, opacity;
+    }
+
     .container {
       text-align: center;
       padding: 2rem;
       z-index: 1;
+      position: relative;
     }
 
     .headline {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(1.4rem, 4.5vw, 3.2rem);
+      font-size: clamp(1.6rem, 5vw, 3.6rem);
       letter-spacing: 0.08em;
       line-height: 1.15;
       text-transform: uppercase;
@@ -161,7 +174,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="headline">Countdown of<br>Billion Brilliant Badass<br>But Bitchass BBoy<br>Back to Golf</div>
+    <div class="headline">Countdown of<br>Bitchass BBoy<br>Back to Golf</div>
     <div class="sub">The clock is ticking &mdash; get those clubs ready</div>
 
     <div class="clock" id="clock">
@@ -190,9 +203,8 @@
   </div>
 
   <script>
-    // 7 weeks from 2026-04-07
+    // ── countdown ──────────────────────────────────────────────
     const target = new Date('2026-05-26T00:00:00').getTime();
-
     const pad = n => String(n).padStart(2, '0');
 
     function tick(id, val) {
@@ -207,28 +219,97 @@
     }
 
     function update() {
-      const now = Date.now();
-      const diff = target - now;
-
+      const diff = target - Date.now();
       if (diff <= 0) {
-        document.getElementById('clock').innerHTML =
-          '<div class="finished">Tee Time! ⛳</div>';
+        document.getElementById('clock').innerHTML = '<div class="finished">Tee Time! ⛳</div>';
         return;
       }
-
-      const days    = Math.floor(diff / 86400000);
-      const hours   = Math.floor((diff % 86400000) / 3600000);
-      const minutes = Math.floor((diff % 3600000) / 60000);
-      const seconds = Math.floor((diff % 60000) / 1000);
-
-      tick('days',    days);
-      tick('hours',   hours);
-      tick('minutes', minutes);
-      tick('seconds', seconds);
+      tick('days',    Math.floor(diff / 86400000));
+      tick('hours',   Math.floor((diff % 86400000) / 3600000));
+      tick('minutes', Math.floor((diff % 3600000) / 60000));
+      tick('seconds', Math.floor((diff % 60000) / 1000));
     }
-
     update();
     setInterval(update, 1000);
+
+    // ── flying golf words ──────────────────────────────────────
+    const words = ['DOUBLE PAR', 'TRIPLE BOGEY', '4 PUTTS', 'HAZARD', 'BUNKER'];
+    const colors = [
+      'rgba(0,255,136,VAL)',
+      'rgba(0,207,255,VAL)',
+      'rgba(255,60,172,VAL)',
+      'rgba(255,221,0,VAL)',
+      'rgba(255,255,255,VAL)',
+    ];
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    function spawnFloater() {
+      const el = document.createElement('div');
+      el.className = 'floater';
+      el.textContent = words[Math.floor(Math.random() * words.length)];
+
+      const size = rand(14, 52);
+      const opacity = rand(0.04, 0.18);
+      const color = colors[Math.floor(Math.random() * colors.length)].replace('VAL', opacity);
+
+      el.style.fontSize = size + 'px';
+      el.style.color = color;
+
+      // start position: random edge or random screen spot
+      const startX = rand(0, window.innerWidth);
+      const startY = rand(0, window.innerHeight);
+      el.style.left = startX + 'px';
+      el.style.top  = startY + 'px';
+
+      const angle = rand(0, 360) * Math.PI / 180;
+      const speed = rand(60, 160); // px/s
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed;
+      const duration = rand(5000, 12000);
+      const rotation = rand(-25, 25);
+
+      document.body.appendChild(el);
+
+      let x = startX, y = startY;
+      let lastTime = null;
+
+      function animate(ts) {
+        if (!lastTime) lastTime = ts;
+        const dt = (ts - lastTime) / 1000;
+        lastTime = ts;
+        x += vx * dt;
+        y += vy * dt;
+        el.style.transform = `translate(${x - startX}px, ${y - startY}px) rotate(${rotation}deg)`;
+
+        const elapsed = ts - start;
+        // fade in first 15%, fade out last 20%
+        const progress = elapsed / duration;
+        let a = opacity;
+        if (progress < 0.15) a = opacity * (progress / 0.15);
+        else if (progress > 0.80) a = opacity * ((1 - progress) / 0.20);
+        el.style.color = color.replace(opacity, a);
+
+        if (elapsed < duration) {
+          requestAnimationFrame(animate);
+        } else {
+          el.remove();
+        }
+      }
+
+      const start = performance.now();
+      requestAnimationFrame(animate);
+    }
+
+    // spawn continuously
+    function scheduleNext() {
+      spawnFloater();
+      setTimeout(scheduleNext, rand(300, 900));
+    }
+
+    // pre-populate with several floaters
+    for (let i = 0; i < 10; i++) setTimeout(spawnFloater, i * 150);
+    setTimeout(scheduleNext, 1500);
   </script>
 </body>
 </html>
