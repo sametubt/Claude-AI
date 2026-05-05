@@ -145,6 +145,26 @@
   .badge.hold     { color: var(--amber); border-color: var(--amber); }
   .badge.avoid    { color: var(--red); border-color: var(--red); }
 
+  .flag {
+    display: inline-block;
+    padding: 1px 6px;
+    margin-left: 4px;
+    font-size: 10px;
+    border: 1px dashed var(--red);
+    color: var(--red);
+    border-radius: 2px;
+    letter-spacing: 0.5px;
+  }
+  .flag.warn { border-color: var(--amber); color: var(--amber); }
+  .dq {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 10px;
+    color: var(--fg-dim);
+    letter-spacing: 0.5px;
+  }
+  .dq.low { color: var(--amber); }
+
   .thesis-row td {
     background: #0c1410;
     padding: 14px 24px;
@@ -186,7 +206,7 @@
 
 <header>
   <h1>SET100 SCANNER<span class="blink">_</span></h1>
-  <div class="sub">Thai equity value scanner // live data via Yahoo Finance // refresh every 15min</div>
+  <div class="sub">Thai equity value+quality scanner // sector-aware scoring // div-trap detection // 15min refresh</div>
 </header>
 
 <div class="controls">
@@ -229,15 +249,16 @@
       <th data-sort="sector" class="opt">Sector</th>
       <th data-sort="price" class="num">Price</th>
       <th data-sort="pe" class="num">P/E</th>
-      <th data-sort="dividend_yield" class="num">Div %</th>
       <th data-sort="pb" class="num opt">P/B</th>
+      <th data-sort="roe" class="num">ROE %</th>
+      <th data-sort="dividend_yield" class="num">Div %</th>
       <th data-sort="market_cap" class="num opt">MCap (B)</th>
       <th data-sort="score" class="num">Score</th>
       <th data-sort="signal">Signal</th>
     </tr>
   </thead>
   <tbody id="tbody">
-    <tr><td colspan="10" class="loading">scanning SET100</td></tr>
+    <tr><td colspan="11" class="loading">scanning SET100</td></tr>
   </tbody>
 </table>
 
@@ -287,16 +308,27 @@ function applySort() {
   render();
 }
 
+function flagBadges(flags) {
+  if (!flags || !flags.length) return "";
+  return flags.map(f => {
+    const warn = f === "SPECIAL DIV?" || f === "LOSS";
+    return `<span class="flag ${warn ? "warn" : ""}">${f}</span>`;
+  }).join("");
+}
+
 function render() {
   const tbody = document.getElementById("tbody");
   if (!state.filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty">no matches</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="empty">no matches</td></tr>`;
     return;
   }
   const html = state.filtered.map(r => {
     const peCls  = (r.pe  === null) ? "bad" : "";
     const pbCls  = (r.pb  === null) ? "bad" : "";
     const dyCls  = (r.dividend_yield === null) ? "bad" : "";
+    const roeCls = (r.roe === null) ? "bad" : "";
+    const dq = r.data_quality || "LOW";
+    const dqEl = dq === "HIGH" ? "" : `<span class="dq ${dq === "LOW" ? "low" : ""}">[${dq} DATA]</span>`;
     const expanded = state.expanded.has(r.ticker);
     const arrow = expanded ? "▾" : "▸";
     const main = `
@@ -306,27 +338,34 @@ function render() {
         <td class="opt">${r.sector}</td>
         <td class="num">${fmt.num(r.price)}</td>
         <td class="num ${peCls}">${fmt.num(r.pe, 1)}</td>
-        <td class="num ${dyCls}">${fmt.pct(r.dividend_yield)}</td>
         <td class="num opt ${pbCls}">${fmt.num(r.pb, 2)}</td>
+        <td class="num ${roeCls}">${fmt.num(r.roe, 1)}</td>
+        <td class="num ${dyCls}">${fmt.pct(r.dividend_yield)}</td>
         <td class="num opt">${fmt.bn(r.market_cap)}</td>
         <td class="num score">${r.score}</td>
-        <td><span class="badge ${badgeClass(r.signal)}">${r.signal}</span></td>
+        <td><span class="badge ${badgeClass(r.signal)}">${r.signal}</span>${flagBadges(r.flags)}${dqEl}</td>
       </tr>`;
     if (!expanded) return main;
     const meta = [
       ["52w high", fmt.num(r.week52_high)],
       ["52w low",  fmt.num(r.week52_low)],
+      ["1y return", r.return_1y === null ? "—" : `${fmt.pct(r.return_1y)}%`],
       ["P/E",      fmt.num(r.pe, 1)],
       ["P/B",      fmt.num(r.pb, 2)],
+      ["EV/EBITDA", fmt.num(r.ev_ebitda, 1)],
+      ["ROE",      r.roe === null ? "—" : `${fmt.pct(r.roe)}%`],
+      ["D/E",      fmt.num(r.debt_to_equity, 2)],
       ["Div Yield", r.dividend_yield === null ? "—" : `${fmt.pct(r.dividend_yield)}%`],
+      ["Payout",   r.payout_ratio === null ? "—" : `${fmt.pct(r.payout_ratio)}%`],
       ["MCap",     r.market_cap === null ? "—" : `${fmt.bn(r.market_cap)} B THB`],
       ["Sector",   r.sector],
+      ["Data",     dq],
       ["Yahoo",    r.yahoo_ticker],
     ].map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("");
     const errLine = r.error ? `<div style="color:var(--red);margin-top:6px;">data fetch error: ${r.error}</div>` : "";
     return main + `
       <tr class="thesis-row">
-        <td colspan="10">
+        <td colspan="11">
           <div class="thesis-card">
             <div>${r.thesis}</div>
             <div class="meta">${meta}</div>
@@ -336,7 +375,6 @@ function render() {
       </tr>`;
   }).join("");
   tbody.innerHTML = html;
-  // Bind row clicks
   tbody.querySelectorAll("tr.row").forEach(tr => {
     tr.addEventListener("click", () => {
       const t = tr.getAttribute("data-ticker");
@@ -372,7 +410,7 @@ function renderSortHeaders() {
 
 async function loadData() {
   const tbody = document.getElementById("tbody");
-  tbody.innerHTML = `<tr><td colspan="10" class="loading">scanning SET100</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="11" class="loading">scanning SET100</td></tr>`;
   try {
     const res = await fetch("/api/scan");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -382,7 +420,7 @@ async function loadData() {
     renderStats();
     applyFilters();
   } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="10" class="empty" style="color:var(--red)">scan failed: ${e.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="empty" style="color:var(--red)">scan failed: ${e.message}</td></tr>`;
   }
 }
 
@@ -410,7 +448,7 @@ document.querySelectorAll("th[data-sort]").forEach(th => {
       state.sort.dir = state.sort.dir === "asc" ? "desc" : "asc";
     } else {
       state.sort.key = k;
-      state.sort.dir = ["price","pe","pb","dividend_yield","market_cap","score"].includes(k) ? "desc" : "asc";
+      state.sort.dir = ["price","pe","pb","roe","dividend_yield","market_cap","score","ev_ebitda"].includes(k) ? "desc" : "asc";
     }
     renderSortHeaders();
     applySort();
