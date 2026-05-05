@@ -12,10 +12,11 @@ Sector overrides:
   Property   : half-weight P/E; relaxed D/E threshold
 
 Flags:
-  DIV TRAP      : div yield > 8% AND payout > 100%
-  SPECIAL DIV?  : div yield > 15% (likely one-off, capped credit)
-  FALLING KNIFE : 1y return < -40% (penalty applied)
-  LOSS          : negative TTM earnings
+  DIV TRAP        : div yield > 8% AND payout > 100%
+  SPECIAL DIV?    : div yield > 15% (likely one-off, capped credit)
+  FALLING KNIFE   : 1y return < -40% (penalty applied)
+  LOSS            : negative TTM earnings
+  CYCLICAL VALUE  : 3+ deep-cyclical-bottom signals align (+15 combo bonus)
 """
 
 from __future__ import annotations
@@ -97,6 +98,37 @@ def _data_quality(r: dict) -> str:
     if have >= 4:
         return "MED"
     return "LOW"
+
+
+def _cyclical_bottom_bonus(r: dict) -> tuple[int, list[str]]:
+    """Reward stocks where multiple deep-cyclical-value signals align.
+
+    EM cyclicals (refiners, petchem, agri, real estate) often look
+    *worst* exactly when they're best to buy: losses + low P/B + 52w
+    low + 1y down = classic turnaround setup. Without this combo
+    bonus the per-bucket scoring zeros out P/E and ROE on losses
+    and the model misses entire categories of value (e.g. IRPC at
+    cycle bottom, CPF on feed-cost compression).
+    """
+    sector = r["sector"]
+    if sector not in ("Energy", "Property", "Food", "Other"):
+        return 0, []
+
+    matches = 0
+    if r["price"] and r["week52_low"] and r["price"] <= r["week52_low"] * 1.15:
+        matches += 1
+    if r["pb"] is not None and 0 < r["pb"] < 1.2:
+        matches += 1
+    if r["return_1y"] is not None and r["return_1y"] < -15:
+        matches += 1
+    if r["market_cap"] is not None and r["market_cap"] > 20_000_000_000:
+        matches += 1
+    if r["ev_ebitda"] is not None and 0 < r["ev_ebitda"] < 12:
+        matches += 1
+
+    if matches >= 3:
+        return 15, ["CYCLICAL VALUE"]
+    return 0, []
 
 
 def _score(r: dict) -> tuple[int, list[str]]:
@@ -187,6 +219,11 @@ def _score(r: dict) -> tuple[int, list[str]]:
             pts -= 5
             flags.append("FALLING KNIFE")
 
+    # ---- CYCLICAL BOTTOM COMBO BONUS (max +15) ----
+    bonus, bonus_flags = _cyclical_bottom_bonus(r)
+    pts += bonus
+    flags.extend(bonus_flags)
+
     return max(0, min(pts, 100)), flags
 
 
@@ -201,16 +238,18 @@ def _signal(score: int) -> str:
 
 
 def _thesis(r: dict) -> str:
+    # DIV TRAP is a hard veto — keep early return
     if "DIV TRAP" in r["flags"]:
         py = f"{r['payout_ratio']:.0f}%" if r["payout_ratio"] is not None else "n/a"
         return (f"DIV TRAP: {r['name']} — {r['dividend_yield']:.1f}% yield with payout "
                 f"{py} looks unsustainable. Skip unless you have a specific catalyst.")
-    if "FALLING KNIFE" in r["flags"] and r["return_1y"] is not None:
-        return (f"FALLING KNIFE: {r['name']} — down {abs(r['return_1y']):.0f}% over 1y. "
-                f"Value signals present but wait for stabilization.")
 
     bits: list[str] = []
     s = r["sector"]
+
+    # Lead with the cyclical-value setup when present
+    if "CYCLICAL VALUE" in r["flags"]:
+        bits.append("cyclical-bottom setup (multiple deep-value triggers aligned)")
 
     if r["pe"] is not None and r["pe"] > 0:
         if r["pe"] < 10:
