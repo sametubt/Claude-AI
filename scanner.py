@@ -100,20 +100,10 @@ def _data_quality(r: dict) -> str:
     return "LOW"
 
 
-def _cyclical_bottom_bonus(r: dict) -> tuple[int, list[str]]:
-    """Reward stocks where multiple deep-cyclical-value signals align.
-
-    EM cyclicals (refiners, petchem, agri, real estate) often look
-    *worst* exactly when they're best to buy: losses + low P/B + 52w
-    low + 1y down = classic turnaround setup. Without this combo
-    bonus the per-bucket scoring zeros out P/E and ROE on losses
-    and the model misses entire categories of value (e.g. IRPC at
-    cycle bottom, CPF on feed-cost compression).
-    """
-    sector = r["sector"]
-    if sector not in ("Energy", "Property", "Food", "Other"):
-        return 0, []
-
+def _cyclical_match_count(r: dict) -> int:
+    """Count how many deep-cyclical-bottom signals align."""
+    if r["sector"] not in ("Energy", "Property", "Food", "Other"):
+        return 0
     matches = 0
     if r["price"] and r["week52_low"] and r["price"] <= r["week52_low"] * 1.15:
         matches += 1
@@ -125,9 +115,17 @@ def _cyclical_bottom_bonus(r: dict) -> tuple[int, list[str]]:
         matches += 1
     if r["ev_ebitda"] is not None and 0 < r["ev_ebitda"] < 12:
         matches += 1
+    return matches
 
+
+def _cyclical_bottom_bonus(matches: int) -> tuple[int, list[str]]:
+    """Tiered combo bonus by strength of cyclical-bottom alignment."""
+    if matches >= 5:
+        return 25, ["CYCLICAL VALUE"]
+    if matches >= 4:
+        return 20, ["CYCLICAL VALUE"]
     if matches >= 3:
-        return 15, ["CYCLICAL VALUE"]
+        return 12, ["CYCLICAL VALUE"]
     return 0, []
 
 
@@ -144,6 +142,10 @@ def _score(r: dict) -> tuple[int, list[str]]:
     price = r["price"]; lo52 = r["week52_low"]
     ret1y = r["return_1y"]; ep = r["earnings_positive"]
 
+    # Compute cyclical match count up-front so other rules can reference it
+    cyc_matches = _cyclical_match_count(r)
+    is_cyclical_bottom = cyc_matches >= 3
+
     # ---- VALUE (max 35) ----
     pe_mul = 0.5 if is_cyclical else 1.0
     if pe is not None and pe > 0:
@@ -152,9 +154,14 @@ def _score(r: dict) -> tuple[int, list[str]]:
         elif pe < 15:
             pts += int(6 * pe_mul)
 
+    # Tiered P/B: extreme sub-book values (think IRPC at 0.55) deserve
+    # markedly more credit than modest sub-book (P/B 0.95). Bank multiplier
+    # still applies — banks at sub-0.7 P/B are screaming undervalue.
     pb_mul = 2.0 if is_bank else 1.0
     if pb is not None and pb > 0:
-        if pb < 1.0:
+        if pb < 0.7:
+            pts += int(14 * pb_mul)
+        elif pb < 1.0:
             pts += int(8 * pb_mul)
         elif pb < 1.5:
             pts += int(4 * pb_mul)
@@ -209,18 +216,29 @@ def _score(r: dict) -> tuple[int, list[str]]:
             else:
                 flags.append("DIV TRAP")
 
-    # ---- TECHNICAL (max 10) ----
-    if price and lo52 and lo52 > 0 and price <= lo52 * 1.10:
-        pts += 5
+    # ---- TECHNICAL (max ~13) ----
+    # Tiered 52w-low proximity: hugging the low matters more than being near it.
+    if price and lo52 and lo52 > 0:
+        if price <= lo52 * 1.05:
+            pts += 8
+        elif price <= lo52 * 1.10:
+            pts += 5
+        elif price <= lo52 * 1.20:
+            pts += 3
+
     if ret1y is not None:
         if -20 <= ret1y <= 5:
             pts += 5
         elif ret1y < -40:
-            pts -= 5
+            # FALLING KNIFE penalty applies only when this is NOT a cyclical-bottom
+            # setup. A -45% drop in a refiner with P/B 0.55 is the entry signal,
+            # not a deteriorating business. Flag it either way for visibility.
             flags.append("FALLING KNIFE")
+            if not is_cyclical_bottom:
+                pts -= 5
 
-    # ---- CYCLICAL BOTTOM COMBO BONUS (max +15) ----
-    bonus, bonus_flags = _cyclical_bottom_bonus(r)
+    # ---- CYCLICAL BOTTOM COMBO BONUS (max +25, tiered by match count) ----
+    bonus, bonus_flags = _cyclical_bottom_bonus(cyc_matches)
     pts += bonus
     flags.extend(bonus_flags)
 
