@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SET100 Scanner // Value Signals</title>
+<style>
+  :root {
+    --bg: #0a0e0a;
+    --bg-2: #0f1410;
+    --fg: #c8e6c9;
+    --fg-dim: #6e8a73;
+    --green: #5fff7a;
+    --green-d: #2bc04a;
+    --amber: #ffb74d;
+    --red: #ff5c5c;
+    --blue: #6cb6ff;
+    --border: #1f2a22;
+    --row-hover: #142019;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+    font-size: 13px;
+  }
+  header {
+    padding: 18px 24px 10px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0c130d, #0a0e0a);
+  }
+  h1 {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--green);
+  }
+  h1 .blink { animation: blink 1s steps(2) infinite; color: var(--green); }
+  @keyframes blink { 50% { opacity: 0; } }
+  .sub {
+    color: var(--fg-dim);
+    margin-top: 4px;
+    font-size: 12px;
+  }
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-2);
+    align-items: center;
+  }
+  .group { display: flex; gap: 6px; align-items: center; }
+  .label { color: var(--fg-dim); margin-right: 4px; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
+  button.chip {
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    border-radius: 2px;
+  }
+  button.chip:hover { border-color: var(--green-d); }
+  button.chip.active {
+    background: var(--green-d);
+    color: #001;
+    border-color: var(--green);
+  }
+  button.refresh {
+    margin-left: auto;
+    color: var(--green);
+    border-color: var(--green-d);
+  }
+  button.refresh:hover { background: var(--green-d); color: #001; }
+  input.search {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 4px 8px;
+    font-family: inherit;
+    font-size: 12px;
+    min-width: 160px;
+  }
+  input.search:focus { outline: none; border-color: var(--green-d); }
+
+  .stats {
+    display: flex; gap: 24px;
+    padding: 8px 24px;
+    color: var(--fg-dim);
+    font-size: 11px;
+    border-bottom: 1px solid var(--border);
+  }
+  .stats b { color: var(--fg); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    text-align: left;
+    color: var(--fg-dim);
+    font-weight: normal;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-2);
+    cursor: pointer;
+    user-select: none;
+    position: sticky; top: 0;
+    z-index: 1;
+  }
+  thead th:hover { color: var(--green); }
+  thead th .arrow { color: var(--green); margin-left: 4px; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  tbody td {
+    padding: 8px 12px;
+    vertical-align: middle;
+  }
+  td.ticker { color: var(--green); font-weight: bold; }
+  td.name { color: var(--fg); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td.bad { color: var(--fg-dim); }
+  td.score { font-weight: bold; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    border-radius: 2px;
+    border: 1px solid;
+    letter-spacing: 0.5px;
+  }
+  .badge.strongbuy { color: #001; background: var(--green); border-color: var(--green); }
+  .badge.buy      { color: var(--green); border-color: var(--green-d); }
+  .badge.hold     { color: var(--amber); border-color: var(--amber); }
+  .badge.avoid    { color: var(--red); border-color: var(--red); }
+
+  .thesis-row td {
+    background: #0c1410;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .thesis-card {
+    border-left: 2px solid var(--green);
+    padding: 8px 14px;
+    color: var(--fg);
+    line-height: 1.6;
+  }
+  .thesis-card .meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+    color: var(--fg-dim);
+    font-size: 11px;
+  }
+  .thesis-card .meta b { color: var(--blue); }
+
+  .empty, .loading {
+    padding: 40px;
+    text-align: center;
+    color: var(--fg-dim);
+  }
+  .loading::after {
+    content: "_";
+    animation: blink 1s steps(2) infinite;
+    color: var(--green);
+  }
+
+  @media (max-width: 720px) {
+    th.opt, td.opt { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>SET100 SCANNER<span class="blink">_</span></h1>
+  <div class="sub">Thai equity value scanner // live data via Yahoo Finance // refresh every 15min</div>
+</header>
+
+<div class="controls">
+  <div class="group">
+    <span class="label">Signal:</span>
+    <button class="chip active" data-filter="signal" data-value="All">All</button>
+    <button class="chip" data-filter="signal" data-value="Strong Buy">Strong Buy</button>
+    <button class="chip" data-filter="signal" data-value="Buy">Buy</button>
+    <button class="chip" data-filter="signal" data-value="Hold">Hold</button>
+  </div>
+  <div class="group">
+    <span class="label">Sector:</span>
+    <button class="chip active" data-filter="sector" data-value="All">All</button>
+    <button class="chip" data-filter="sector" data-value="Bank">Bank</button>
+    <button class="chip" data-filter="sector" data-value="Energy">Energy</button>
+    <button class="chip" data-filter="sector" data-value="Property">Property</button>
+    <button class="chip" data-filter="sector" data-value="Telecom">Telecom</button>
+    <button class="chip" data-filter="sector" data-value="Food">Food</button>
+    <button class="chip" data-filter="sector" data-value="Other">Other</button>
+  </div>
+  <div class="group">
+    <input class="search" id="search" placeholder="search ticker / name..." />
+  </div>
+  <button class="chip refresh" id="refreshBtn">[ refresh ]</button>
+</div>
+
+<div class="stats" id="stats">
+  <span>scanned: <b id="stCount">—</b></span>
+  <span>strong buy: <b id="stStrong">—</b></span>
+  <span>buy: <b id="stBuy">—</b></span>
+  <span>hold: <b id="stHold">—</b></span>
+  <span>last refresh: <b id="stWhen">—</b></span>
+</div>
+
+<table id="tbl">
+  <thead>
+    <tr>
+      <th data-sort="ticker">Ticker</th>
+      <th class="opt" data-sort="name">Name</th>
+      <th data-sort="sector" class="opt">Sector</th>
+      <th data-sort="price" class="num">Price</th>
+      <th data-sort="pe" class="num">P/E</th>
+      <th data-sort="dividend_yield" class="num">Div %</th>
+      <th data-sort="pb" class="num opt">P/B</th>
+      <th data-sort="market_cap" class="num opt">MCap (B)</th>
+      <th data-sort="score" class="num">Score</th>
+      <th data-sort="signal">Signal</th>
+    </tr>
+  </thead>
+  <tbody id="tbody">
+    <tr><td colspan="10" class="loading">scanning SET100</td></tr>
+  </tbody>
+</table>
+
+<script>
+const state = {
+  rows: [],
+  filtered: [],
+  expanded: new Set(),
+  sort: { key: "score", dir: "desc" },
+  filter: { signal: "All", sector: "All", search: "" },
+  cachedAt: 0,
+};
+
+const fmt = {
+  num(v, d=2) { return (v === null || v === undefined) ? "—" : Number(v).toFixed(d); },
+  pct(v)      { return (v === null || v === undefined) ? "—" : Number(v).toFixed(2); },
+  bn(v)       { return (v === null || v === undefined) ? "—" : (v / 1e9).toFixed(1); },
+  ts(t)       { if (!t) return "—"; const d = new Date(t * 1000); return d.toLocaleTimeString(); },
+};
+
+function badgeClass(sig) {
+  return ({"Strong Buy": "strongbuy", "Buy": "buy", "Hold": "hold", "Avoid": "avoid"})[sig] || "avoid";
+}
+
+function applyFilters() {
+  const { signal, sector, search } = state.filter;
+  const q = search.trim().toLowerCase();
+  state.filtered = state.rows.filter(r => {
+    if (signal !== "All" && r.signal !== signal) return false;
+    if (sector !== "All" && r.sector !== sector) return false;
+    if (q && !(`${r.ticker} ${r.name}`.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  applySort();
+}
+
+function applySort() {
+  const { key, dir } = state.sort;
+  const mul = dir === "asc" ? 1 : -1;
+  state.filtered.sort((a, b) => {
+    const av = a[key], bv = b[key];
+    if (av === null || av === undefined) return 1;
+    if (bv === null || bv === undefined) return -1;
+    if (typeof av === "number") return (av - bv) * mul;
+    return String(av).localeCompare(String(bv)) * mul;
+  });
+  render();
+}
+
+function render() {
+  const tbody = document.getElementById("tbody");
+  if (!state.filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty">no matches</td></tr>`;
+    return;
+  }
+  const html = state.filtered.map(r => {
+    const peCls  = (r.pe  === null) ? "bad" : "";
+    const pbCls  = (r.pb  === null) ? "bad" : "";
+    const dyCls  = (r.dividend_yield === null) ? "bad" : "";
+    const expanded = state.expanded.has(r.ticker);
+    const arrow = expanded ? "▾" : "▸";
+    const main = `
+      <tr data-ticker="${r.ticker}" class="row">
+        <td class="ticker">${arrow} ${r.ticker}</td>
+        <td class="name opt">${r.name}</td>
+        <td class="opt">${r.sector}</td>
+        <td class="num">${fmt.num(r.price)}</td>
+        <td class="num ${peCls}">${fmt.num(r.pe, 1)}</td>
+        <td class="num ${dyCls}">${fmt.pct(r.dividend_yield)}</td>
+        <td class="num opt ${pbCls}">${fmt.num(r.pb, 2)}</td>
+        <td class="num opt">${fmt.bn(r.market_cap)}</td>
+        <td class="num score">${r.score}</td>
+        <td><span class="badge ${badgeClass(r.signal)}">${r.signal}</span></td>
+      </tr>`;
+    if (!expanded) return main;
+    const meta = [
+      ["52w high", fmt.num(r.week52_high)],
+      ["52w low",  fmt.num(r.week52_low)],
+      ["P/E",      fmt.num(r.pe, 1)],
+      ["P/B",      fmt.num(r.pb, 2)],
+      ["Div Yield", r.dividend_yield === null ? "—" : `${fmt.pct(r.dividend_yield)}%`],
+      ["MCap",     r.market_cap === null ? "—" : `${fmt.bn(r.market_cap)} B THB`],
+      ["Sector",   r.sector],
+      ["Yahoo",    r.yahoo_ticker],
+    ].map(([k, v]) => `<div><b>${k}:</b> ${v}</div>`).join("");
+    const errLine = r.error ? `<div style="color:var(--red);margin-top:6px;">data fetch error: ${r.error}</div>` : "";
+    return main + `
+      <tr class="thesis-row">
+        <td colspan="10">
+          <div class="thesis-card">
+            <div>${r.thesis}</div>
+            <div class="meta">${meta}</div>
+            ${errLine}
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+  tbody.innerHTML = html;
+  // Bind row clicks
+  tbody.querySelectorAll("tr.row").forEach(tr => {
+    tr.addEventListener("click", () => {
+      const t = tr.getAttribute("data-ticker");
+      if (state.expanded.has(t)) state.expanded.delete(t);
+      else state.expanded.add(t);
+      render();
+    });
+  });
+}
+
+function renderStats() {
+  const c = (sig) => state.rows.filter(r => r.signal === sig).length;
+  document.getElementById("stCount").textContent = state.rows.length;
+  document.getElementById("stStrong").textContent = c("Strong Buy");
+  document.getElementById("stBuy").textContent = c("Buy");
+  document.getElementById("stHold").textContent = c("Hold");
+  document.getElementById("stWhen").textContent = fmt.ts(state.cachedAt);
+}
+
+function renderSortHeaders() {
+  document.querySelectorAll("th[data-sort]").forEach(th => {
+    const k = th.getAttribute("data-sort");
+    const isActive = state.sort.key === k;
+    th.querySelectorAll(".arrow").forEach(n => n.remove());
+    if (isActive) {
+      const span = document.createElement("span");
+      span.className = "arrow";
+      span.textContent = state.sort.dir === "asc" ? "▲" : "▼";
+      th.appendChild(span);
+    }
+  });
+}
+
+async function loadData() {
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = `<tr><td colspan="10" class="loading">scanning SET100</td></tr>`;
+  try {
+    const res = await fetch("/api/scan");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    state.rows = data.results || [];
+    state.cachedAt = data.cached_at || 0;
+    renderStats();
+    applyFilters();
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty" style="color:var(--red)">scan failed: ${e.message}</td></tr>`;
+  }
+}
+
+// Wire up controls
+document.querySelectorAll(".chip[data-filter]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const f = btn.getAttribute("data-filter");
+    const v = btn.getAttribute("data-value");
+    state.filter[f] = v;
+    document.querySelectorAll(`.chip[data-filter="${f}"]`).forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    applyFilters();
+  });
+});
+
+document.getElementById("search").addEventListener("input", (e) => {
+  state.filter.search = e.target.value;
+  applyFilters();
+});
+
+document.querySelectorAll("th[data-sort]").forEach(th => {
+  th.addEventListener("click", () => {
+    const k = th.getAttribute("data-sort");
+    if (state.sort.key === k) {
+      state.sort.dir = state.sort.dir === "asc" ? "desc" : "asc";
+    } else {
+      state.sort.key = k;
+      state.sort.dir = ["price","pe","pb","dividend_yield","market_cap","score"].includes(k) ? "desc" : "asc";
+    }
+    renderSortHeaders();
+    applySort();
+  });
+});
+
+document.getElementById("refreshBtn").addEventListener("click", loadData);
+
+renderSortHeaders();
+loadData();
+</script>
+</body>
+</html>
