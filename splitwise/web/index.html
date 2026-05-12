@@ -251,6 +251,8 @@
   };
   function iconFor(text){
     const k = (text || '').toLowerCase();
+    // Golf goes first — "greens fees", "tee time" otherwise get caught by /fee/ or /tip/.
+    if (/\bgolf|\btee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?/.test(k)) return ICONS.golf;
     if (/whisk|bottle|liquor|vodka|tequila|gin|rum|champagne/.test(k))    return ICONS.bottle;
     if (/beer|wine|drink|booze|cocktail|round\b|bar\b/.test(k))           return ICONS.glass;
     if (/coffee|tea|latte|cappuccino|espresso|cafe/.test(k))              return ICONS.cup;
@@ -264,7 +266,6 @@
     if (/ticket|concert|movie|show|entry|admission|museum/.test(k))       return ICONS.ticket;
     if (/groc|market|shop|store/.test(k))                                 return ICONS.bag;
     if (/tip|service|fee|tax|gratuity/.test(k))                           return ICONS.receipt;
-    if (/golf|tee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?/.test(k)) return ICONS.golf;
     if (/cash|paid|payment|loan/.test(k))                                 return ICONS.money;
     return ICONS.receipt;
   }
