@@ -247,6 +247,7 @@
     diamond: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round"><path d="M11 4 L18 11 L11 18 L4 11 Z"/></g></svg>`,
     bag: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8 L17 8 L16 18 L6 18 Z"/><path d="M8 8 V6 a3 3 0 0 1 6 0 V8"/></g></svg>`,
     money: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="6" width="16" height="10" rx="1"/><circle cx="11" cy="11" r="2.4"/></g></svg>`,
+    golf: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="18"/><path d="M6 4 L14 6 L6 8 Z" fill="#1a1813"/><circle cx="6" cy="19" r="1.4"/></g></svg>`,
   };
   function iconFor(text){
     const k = (text || '').toLowerCase();
@@ -263,6 +264,7 @@
     if (/ticket|concert|movie|show|entry|admission|museum/.test(k))       return ICONS.ticket;
     if (/groc|market|shop|store/.test(k))                                 return ICONS.bag;
     if (/tip|service|fee|tax|gratuity/.test(k))                           return ICONS.receipt;
+    if (/golf|tee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?/.test(k)) return ICONS.golf;
     if (/cash|paid|payment|loan/.test(k))                                 return ICONS.money;
     return ICONS.receipt;
   }
