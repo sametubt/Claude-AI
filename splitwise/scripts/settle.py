@@ -27,7 +27,7 @@ import sys
 from decimal import Decimal, ROUND_HALF_UP
 
 
-DASHBOARD_BASE_URL = "https://raw.githack.com/sametubt/Claude-AI/main/splitwise/web/index.html"
+DASHBOARD_BASE_URL = "https://sametubt.github.io/Claude-AI/"
 
 
 def make_share_hash(spec):
