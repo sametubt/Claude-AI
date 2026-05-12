@@ -21,9 +21,36 @@ Spec:
 }
 """
 
+import base64
 import json
 import sys
 from decimal import Decimal, ROUND_HALF_UP
+
+
+DASHBOARD_BASE_URL = "https://raw.githack.com/sametubt/Claude-AI/main/splitwise/web/index.html"
+
+
+def make_share_hash(spec):
+    """Build the URL-safe base64 hash used by the dashboard."""
+    compact = {
+        "t": spec.get("title", ""),
+        "c": spec.get("currency", ""),
+        "p": list(spec.get("people", [])),
+        "e": [],
+    }
+    for exp in spec.get("expenses", []):
+        split_among = exp.get("split_among")
+        item = {
+            "a": exp.get("payer", ""),
+            "m": float(exp.get("amount", 0)),
+            "g": split_among if split_among == "all" else list(split_among or []),
+            "n": exp.get("note", ""),
+        }
+        if exp.get("shares") is not None:
+            item["s"] = [float(s) for s in exp["shares"]]
+        compact["e"].append(item)
+    raw = json.dumps(compact, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
 
 
 def to_dec(x):
@@ -138,9 +165,13 @@ def main():
     balances, paid, owed = compute_balances(spec)
     transfers = settle(balances)
 
+    share_hash = make_share_hash(spec)
+    dashboard_url = f"{DASHBOARD_BASE_URL}#{share_hash}"
+
     # Output
     out = {
         "currency": currency,
+        "dashboard_url": dashboard_url,
         "net_positions": [
             {
                 "person": p,

@@ -20,9 +20,10 @@ Auto-trigger this skill on any expense-splitting language from the user. Do not 
 2. **Confirm** by echoing back a compact JSON. Skip only if input was already JSON.
 3. **Run** the script (next section). It is the source of truth — do not do the math by hand.
 4. **Present** results in this order:
+   - The settlement transfers ("Daria pays Sam 2220 THB") — lead with these
    - Each person's net position (paid X, owes Y, net Z)
-   - The settlement transfers ("Daria pays Sam 2220 THB")
    - One-line summary: total transfers, whether everyone moves at most once
+   - **Always finish with the `dashboard_url` field from the script output**, as a single line the user can tap on phone. Format it as: `Dashboard: <url>` — that's the shareable read-only page for the group.
 
 ## How to run
 
