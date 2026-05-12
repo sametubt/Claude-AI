@@ -6,7 +6,13 @@
 <title>splitwise · settle up beautifully</title>
 <meta name="description" content="Split shared expenses and settle up with the minimum number of transfers." />
 <meta name="theme-color" content="#0b0d12" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Splitwise" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="format-detection" content="telephone=no" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c5cff'/%3E%3Cpath d='M18 36c5 8 23 8 28 0M22 24h.01M42 24h.01' stroke='%23fff' stroke-width='4' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%237c5cff'/%3E%3Cpath d='M50 110c14 22 66 22 80 0M62 70h.01M118 70h.01' stroke='%23fff' stroke-width='11' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" />
 <style>
   :root{
     --bg-0:#0b0d12;
@@ -43,7 +49,14 @@
     -webkit-font-smoothing:antialiased;
     line-height:1.5;
   }
-  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+  .wrap{
+    max-width:980px;margin:0 auto;
+    padding:
+      max(20px, env(safe-area-inset-top))
+      max(20px, env(safe-area-inset-right))
+      max(60px, env(safe-area-inset-bottom))
+      max(20px, env(safe-area-inset-left));
+  }
   header.hero{
     display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
     margin-bottom:28px;flex-wrap:wrap;
@@ -61,9 +74,10 @@
   .btn{
     appearance:none;border:1px solid var(--line);background:var(--bg-2);
     color:var(--text);font:inherit;font-size:14px;font-weight:500;
-    padding:9px 14px;border-radius:10px;cursor:pointer;
+    padding:11px 16px;border-radius:10px;cursor:pointer;min-height:44px;
     transition:transform .06s ease, background .15s ease, border-color .15s ease;
-    display:inline-flex;align-items:center;gap:8px;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn:hover{background:var(--bg-3);border-color:#333a4d}
   .btn:active{transform:translateY(1px)}
@@ -73,7 +87,7 @@
     box-shadow:0 10px 22px -10px rgba(124,92,255,.7);
   }
   .btn.ghost{background:transparent}
-  .btn.small{padding:6px 10px;font-size:13px;border-radius:8px}
+  .btn.small{padding:8px 12px;font-size:13px;border-radius:9px;min-height:38px}
   .btn.danger{color:var(--bad)}
   .btn.danger:hover{background:rgba(251,113,133,.08);border-color:rgba(251,113,133,.3)}
 
@@ -100,11 +114,12 @@
   .chip{
     display:inline-flex;align-items:center;gap:8px;
     background:var(--bg-3);border:1px solid var(--line);
-    padding:6px 6px 6px 12px;border-radius:999px;font-size:14px;
+    padding:8px 8px 8px 14px;border-radius:999px;font-size:15px;min-height:38px;
   }
   .chip .x{
     border:none;background:transparent;color:var(--muted);cursor:pointer;
-    width:22px;height:22px;border-radius:999px;display:grid;place-items:center;
+    width:28px;height:28px;border-radius:999px;display:grid;place-items:center;
+    -webkit-tap-highlight-color: transparent;
   }
   .chip .x:hover{background:rgba(251,113,133,.15);color:var(--bad)}
   .add-person{
@@ -113,8 +128,8 @@
   .add-person input{flex:1}
   input[type="text"], input[type="number"], select, textarea{
     width:100%;background:var(--bg-2);border:1px solid var(--line);
-    color:var(--text);font:inherit;font-size:14px;
-    padding:10px 12px;border-radius:10px;outline:none;
+    color:var(--text);font:inherit;font-size:16px; /* >=16px stops iOS auto-zoom */
+    padding:12px 14px;border-radius:10px;outline:none;min-height:44px;
     transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
   }
   input:focus, select:focus, textarea:focus{
@@ -139,24 +154,27 @@
   }
   .seg button{
     border:none;background:transparent;color:var(--muted);
-    font:inherit;font-size:13px;padding:6px 10px;border-radius:7px;cursor:pointer;
+    font:inherit;font-size:14px;padding:8px 14px;border-radius:7px;cursor:pointer;
+    min-height:36px;-webkit-tap-highlight-color: transparent;
   }
   .seg button.on{background:var(--bg-1);color:var(--text);box-shadow:var(--shadow-sm)}
   .picks{display:flex;flex-wrap:wrap;gap:6px}
   .pick{
     display:inline-flex;align-items:center;gap:6px;
     background:var(--bg-3);border:1px solid var(--line);
-    padding:5px 10px;border-radius:999px;font-size:13px;cursor:pointer;user-select:none;
+    padding:8px 12px;border-radius:999px;font-size:14px;cursor:pointer;user-select:none;
+    min-height:38px;
     transition:all .12s ease;
+    -webkit-tap-highlight-color: transparent;
   }
   .pick.on{
     background:rgba(124,92,255,.15);border-color:rgba(124,92,255,.5);color:#dcd3ff;
   }
   .pick .sh{
-    width:40px;background:transparent;border:none;color:inherit;font:inherit;
-    text-align:right;font-size:12px;
+    width:46px;background:transparent;border:none;color:inherit;font:inherit;
+    text-align:right;font-size:14px;padding:0;min-height:0;border-radius:0;
   }
-  .pick .sh:focus{outline:none}
+  .pick .sh:focus{outline:none;box-shadow:none;background:transparent}
   .exp-meta{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .exp-note{flex:1}
   .row-tools{display:flex;gap:6px}
@@ -217,12 +235,20 @@
   .num{font-variant-numeric:tabular-nums}
 
   /* Smaller screens */
-  @media (max-width: 560px){
+  @media (max-width: 640px){
     h1{font-size:22px}
-    .exp-row{grid-template-columns:1fr;align-items:stretch}
+    .hero{align-items:flex-start}
+    .toolbar{width:100%}
+    .toolbar .btn{flex:1}
+    .exp-row{grid-template-columns:1fr 1fr;align-items:end}
+    .exp-row > div:nth-child(3){grid-column:1 / -1;justify-content:flex-end}
     .card-body{padding:8px 14px 16px}
     .card-head{padding:16px 14px 8px}
-    .wrap{padding:20px 14px 60px}
+    .net{grid-template-columns:1fr auto;grid-template-rows:auto auto}
+    .net .det{grid-column:1 / -1;order:3}
+  }
+  @media (max-width: 380px){
+    .exp-row{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -733,14 +759,40 @@ function toast(msg){
   clearTimeout(toast._t);
   toast._t = setTimeout(()=>el.classList.remove("show"), 1700);
 }
+function settlementText(){
+  if (state.people.length === 0 || state.expenses.length === 0) return "";
+  const { balances, paid, owed } = computeBalances();
+  const transfers = settle(balances);
+  const cur = state.currency ? " " + state.currency : "";
+  const lines = ["Settlement:"];
+  if (transfers.length === 0){
+    lines.push("• Everyone's even — no transfers needed.");
+  } else {
+    for (const [f,t,a] of transfers){
+      lines.push(`• ${f} pays ${t} ${fmt(a)}${cur}`);
+    }
+  }
+  return lines.join("\n");
+}
 async function copyShareLink(){
   pushHash();
   const url = location.href;
+  const text = settlementText();
+  const shareData = {
+    title: "Splitwise · settle up",
+    text: text ? text + "\n\nOpen the full bill:" : "Splitwise · share expenses",
+    url,
+  };
+  // Native share sheet on phones (iOS/Android)
+  if (navigator.share){
+    try { await navigator.share(shareData); return; }
+    catch(e){ if (e && e.name === "AbortError") return; /* fall through to copy */ }
+  }
+  // Clipboard fallback
   try{
     await navigator.clipboard.writeText(url);
     toast("Link copied — share it with the group");
   } catch(e){
-    // Fallback
     const ta = document.createElement("textarea");
     ta.value = url; document.body.appendChild(ta);
     ta.select(); document.execCommand("copy"); ta.remove();
