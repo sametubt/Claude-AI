@@ -1,0 +1,31 @@
+{
+  "people": ["Sam", "Alex", "Kirill", "Daria"],
+  "currency": "THB",
+  "expenses": [
+    {
+      "payer": "Sam",
+      "amount": 3200,
+      "split_among": "all",
+      "note": "dinner, 4 of us"
+    },
+    {
+      "payer": "Alex",
+      "amount": 1500,
+      "split_among": ["Alex", "Kirill", "Daria"],
+      "note": "taxi, Sam took a Grab separately"
+    },
+    {
+      "payer": "Kirill",
+      "amount": 2400,
+      "split_among": ["Sam", "Alex", "Kirill", "Daria"],
+      "shares": [1, 1, 1, 2],
+      "note": "concert tickets, Daria got 2"
+    },
+    {
+      "payer": "Sam",
+      "amount": 600,
+      "split_among": ["Sam", "Daria"],
+      "note": "coffee"
+    }
+  ]
+}
