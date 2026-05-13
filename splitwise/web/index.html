@@ -244,15 +244,18 @@
     car: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linecap="round"><rect x="3" y="9" width="16" height="6" rx="1.5"/><circle cx="7" cy="19" r="1.8"/><circle cx="15" cy="19" r="1.8"/><line x1="6" y1="6" x2="16" y2="6"/></g></svg>`,
     bed: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17 L3 11 L19 11 L19 17"/><line x1="3" y1="17" x2="19" y2="17"/><path d="M5 11 L5 8 L17 8 L17 11"/><circle cx="8" cy="9.5" r="1"/></g></svg>`,
     ticket: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round"><path d="M3 8 L3 6 L19 6 L19 8 a 2 2 0 0 0 0 6 L19 16 L3 16 L3 14 a 2 2 0 0 0 0 -6 Z"/><line x1="11" y1="6" x2="11" y2="16" stroke-dasharray="1 2"/></g></svg>`,
-    diamond: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round"><path d="M11 4 L18 11 L11 18 L4 11 Z"/></g></svg>`,
+    dessert: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><circle cx="11" cy="7" r="4"/><path d="M7 9 L11 19 L15 9"/></g></svg>`,
     bag: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8 L17 8 L16 18 L6 18 Z"/><path d="M8 8 V6 a3 3 0 0 1 6 0 V8"/></g></svg>`,
+    rent: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><path d="M4 11 L11 5 L18 11 L18 18 L4 18 Z"/><rect x="9" y="13" width="4" height="5"/></g></svg>`,
+    bill: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="6" width="16" height="11" rx="0.5"/><path d="M3 7 L11 13 L19 7"/></g></svg>`,
+    tip: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="8" y1="14" x2="14" y2="8"/><circle cx="9" cy="9" r="0.9"/><circle cx="13" cy="13" r="0.9"/></g></svg>`,
     money: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="6" width="16" height="10" rx="1"/><circle cx="11" cy="11" r="2.4"/></g></svg>`,
     golf: `<svg viewBox="0 0 22 22"><g fill="none" stroke="#1a1813" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="3" x2="8" y2="18"/><path d="M8 4 L15 6 L8 8 Z" fill="#1a1813"/><circle cx="8" cy="19" r="1.4"/></g></svg>`,
   };
   function iconFor(text){
     const k = (text || '').toLowerCase();
     // Golf goes first — "greens fees", "tee time" otherwise get caught by /fee/ or /tip/.
-    if (/\bgolf|\btee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?/.test(k)) return ICONS.golf;
+    if (/\bgolf|\btee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?|\bbuggy\b/.test(k)) return ICONS.golf;
     if (/whisk|bottle|liquor|vodka|tequila|gin|rum|champagne/.test(k))    return ICONS.bottle;
     if (/beer|wine|drink|booze|cocktail|round\b|bar\b/.test(k))           return ICONS.glass;
     if (/coffee|tea|latte|cappuccino|espresso|cafe/.test(k))              return ICONS.cup;
@@ -260,13 +263,14 @@
     if (/noodle|pad thai|pasta|spaghetti|ramen|pho/.test(k))              return ICONS.noodle;
     if (/soup|tom yum|broth|stew/.test(k))                                return ICONS.soup;
     if (/dinner|lunch|breakfast|meal|food|appetiz|starter|main|burger|pizza|sushi|steak|chicken/.test(k)) return ICONS.plate;
-    if (/dessert|cake|sweet|ice cream|mango|chocolate/.test(k))           return ICONS.diamond;
-    if (/taxi|tuk|uber|grab|lyft|cab|ride|train|bus|flight|airport|transport/.test(k)) return ICONS.car;
+    if (/dessert|cake|sweet|ice cream|mango|chocolate/.test(k))           return ICONS.dessert;
+    if (/taxi|tuk|uber|grab|lyft|cab|ride|train|bus|flight|airport|transport|\bgas\b|petrol|fuel|parking|toll/.test(k)) return ICONS.car;
     if (/hotel|airbnb|room|stay|accommodation|hostel/.test(k))            return ICONS.bed;
-    if (/ticket|concert|movie|show|entry|admission|museum/.test(k))       return ICONS.ticket;
-    if (/groc|market|shop|store/.test(k))                                 return ICONS.bag;
-    if (/tip|service|fee|tax|gratuity/.test(k))                           return ICONS.receipt;
-    if (/golf|tee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?/.test(k)) return ICONS.golf;
+    if (/ticket|concert|movie|show|entry|admission|museum|\btour\b|excursion|\bguide\b|cover charge|\bktv\b|karaoke|nightclub|club night/.test(k)) return ICONS.ticket;
+    if (/groc|market|\bshop|store|souvenir|cleaning|housekeep|snack|7-?11|convenience|\bmart\b/.test(k)) return ICONS.bag;
+    if (/\brent\b|\blease\b|mortgage|\bdeposit\b/.test(k))                return ICONS.rent;
+    if (/wifi|internet|electric|electricity|water bill|utilit|netflix|spotify|hulu|\bhbo\b|subscription|\bsim card|esim|roaming|data plan|phone bill|cable bill/.test(k)) return ICONS.bill;
+    if (/tip|service|fee|tax|gratuity/.test(k))                           return ICONS.tip;
     if (/cash|paid|payment|loan/.test(k))                                 return ICONS.money;
     return ICONS.receipt;
   }
