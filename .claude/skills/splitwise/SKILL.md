@@ -67,7 +67,7 @@ JSON in on stdin, JSON out on stdout. No flags, no config.
 
 Field rules:
 - `people`: required, the full roster.
-- `currency`: optional, free-form string used only for display. **Default to `"THB"` if the user did not specify a currency** — only override when they mention USD, EUR, baht, dollars, etc.
+- `currency`: optional, free-form string used only for display. **Leave empty by default** — cleaner. Only set it when the user explicitly mentions a currency (THB, baht, USD, dollars, EUR, etc).
 - `expenses[].payer`: required.
 - `expenses[].amount`: required, positive number.
 - `expenses[].split_among`: required — either an array of names or the string `"all"`.
