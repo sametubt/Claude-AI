@@ -39,6 +39,7 @@ JSON in on stdin, JSON out on stdout. No flags, no config.
 
 ```json
 {
+  "title": "Bali trip Mar 2026",
   "people": ["Alice", "Bob", "Carol", "Dave"],
   "currency": "THB",
   "expenses": [
@@ -66,6 +67,7 @@ JSON in on stdin, JSON out on stdout. No flags, no config.
 ```
 
 Field rules:
+- `title`: **always set this** to a short label for the event — e.g. `"Green Valley 23 May"`, `"Bali trip Mar 2026"`, `"Dinner at Ramen-ya"`. Adapt from whatever the user mentioned (venue + date, occasion, restaurant name). If the user explicitly names the bill (`call this one X`), use that verbatim. Only leave empty if there's truly nothing to anchor on.
 - `people`: required, the full roster.
 - `currency`: optional, free-form string used only for display. **Leave empty by default** — cleaner. Only set it when the user explicitly mentions a currency (THB, baht, USD, dollars, EUR, etc).
 - `expenses[].payer`: required.
