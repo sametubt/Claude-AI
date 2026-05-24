@@ -135,6 +135,10 @@
   .item .meta{font-size:11.5px;color:var(--muted);line-height:1.5}
   .item .meta strong{color:var(--ink);font-weight:500}
   .item .meta .mono{font-family:'Geist Mono',monospace}
+  .item .meta-shares{
+    font-size:10.5px;color:var(--muted);line-height:1.5;
+    font-family:'Geist Mono',monospace;opacity:.85;
+  }
 
   /* Footer */
   .footer{
@@ -386,6 +390,7 @@
           ? `all ${bill.people.length}`
           : group.join(', ');
         let perEa = '';
+        let breakdown = '';
         if (group.length){
           if (!Array.isArray(e.shares)){
             perEa = ` · <span class="mono">${fmtAmt(e.amount / group.length, bill.currency)}</span> ea`;
@@ -394,7 +399,12 @@
             if (min === max && min > 0){
               perEa = ` · <span class="mono">${fmtAmt(e.amount / group.length, bill.currency)}</span> ea`;
             } else {
-              perEa = ' · weighted';
+              const totalShares = e.shares.reduce((a,b) => a + b, 0);
+              if (totalShares > 0){
+                breakdown = group.map((p, i) =>
+                  `${esc(p)} ${fmtAmt(e.amount * e.shares[i] / totalShares, bill.currency)}`
+                ).join(' · ');
+              }
             }
           }
         }
@@ -408,6 +418,7 @@
                 <span class="item-amt">${fmtAmt(e.amount, bill.currency)}</span>
               </div>
               <div class="meta">paid <strong>${esc(e.payer)}</strong> · split <strong>${esc(splitLabel)}</strong>${perEa}</div>
+              ${breakdown ? `<div class="meta-shares">${breakdown}</div>` : ''}
             </div>
           </div>
         `;
