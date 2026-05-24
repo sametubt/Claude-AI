@@ -354,10 +354,13 @@
         </div>
       `;
     } else {
+      const seenPaid = new Set();
       const paidTag = (name) => {
         const amt = +bill.paid[name] || 0;
         if (amt <= 0) return '';
-        return `<span class="paid-tag">paid ${fmtAmt(amt, bill.currency)}</span>`;
+        if (seenPaid.has(name)) return '';
+        seenPaid.add(name);
+        return `<span class="paid-tag">paid ${Math.round(amt).toLocaleString()}</span>`;
       };
       const nameBlock = (name, right) =>
         `<span class="name${right?' right':''}"><span class="name-text">${esc(name)}</span>${paidTag(name)}</span>`;
