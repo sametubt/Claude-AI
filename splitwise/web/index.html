@@ -396,7 +396,10 @@
             perEa = ` · <span class="mono">${fmtAmt(e.amount / group.length, bill.currency)}</span> ea`;
           } else {
             const min = Math.min(...e.shares), max = Math.max(...e.shares);
-            if (min === max && min > 0){
+            // Treat as equal when shares only differ by rounding noise
+            // (≤2% spread, e.g. [507,507,507,507,506,506] for 3040/6).
+            const isRoundingOnly = min > 0 && max / min <= 1.02;
+            if (min === max || isRoundingOnly){
               perEa = ` · <span class="mono">${fmtAmt(e.amount / group.length, bill.currency)}</span> ea`;
             } else {
               const totalShares = e.shares.reduce((a,b) => a + b, 0);
