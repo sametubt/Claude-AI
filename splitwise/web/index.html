@@ -97,8 +97,21 @@
     font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:600;
     letter-spacing:.04em;flex-shrink:0;
   }
-  .transfer .name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .transfer .name.right{text-align:right}
+  .transfer .name{
+    font-weight:500;
+    display:flex;flex-direction:column;align-items:flex-start;
+    line-height:1.25;min-width:0;
+  }
+  .transfer .name.right{align-items:flex-end;text-align:right}
+  .transfer .name .name-text{
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  }
+  .transfer .paid-tag{
+    font-size:10.5px;color:var(--muted);
+    font-family:'Geist Mono',monospace;
+    font-weight:400;opacity:.75;line-height:1.3;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  }
   .transfer .arrow{color:var(--muted);font-family:'Geist Mono',monospace;font-size:14px;padding:0 2px}
   .transfer .amt{
     font-family:'Geist Mono',monospace;font-size:13.5px;font-weight:600;
@@ -341,15 +354,22 @@
         </div>
       `;
     } else {
+      const paidTag = (name) => {
+        const amt = +bill.paid[name] || 0;
+        if (amt <= 0) return '';
+        return `<span class="paid-tag">paid ${fmtAmt(amt, bill.currency)}</span>`;
+      };
+      const nameBlock = (name, right) =>
+        `<span class="name${right?' right':''}"><span class="name-text">${esc(name)}</span>${paidTag(name)}</span>`;
       for (const t of bill.transfers){
         const [fbg, ffg] = paletteMap[t.from] || PALETTES[0];
         const [tbg, tfg] = paletteMap[t.to]   || PALETTES[0];
         html += `
           <div class="transfer">
             <div class="avatar" style="background:${fbg};color:${ffg}" title="${esc(t.from)}">${initials(t.from)}</div>
-            <span class="name">${esc(t.from)}</span>
+            ${nameBlock(t.from, false)}
             <span class="arrow">→</span>
-            <span class="name right">${esc(t.to)}</span>
+            ${nameBlock(t.to, true)}
             <div class="avatar" style="background:${tbg};color:${tfg}" title="${esc(t.to)}">${initials(t.to)}</div>
             <span class="amt">${fmtAmt(t.amount, bill.currency)}</span>
           </div>
@@ -360,7 +380,7 @@
         html += `
           <div class="transfer even">
             <div class="avatar" style="background:${bg};color:${fg}" title="${esc(p)}">${initials(p)}</div>
-            <span class="name">${esc(p)}</span>
+            ${nameBlock(p, false)}
             <span class="arrow">—</span>
             <span class="even-tag">even</span>
             <span></span>
