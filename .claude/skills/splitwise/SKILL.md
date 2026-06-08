@@ -100,6 +100,7 @@ If the user expected fewer transfers, explain that balances do not partition cle
 - **Currency mixing**: not supported. Ask which currency to settle in.
 - **Self-payment**: if the payer is also in `split_among`, that is correct (they paid for themselves too).
 - **Rounding**: the script handles sub-cent residue automatically.
+- **Thai spirits**: "regency", "sang som", "ruang khao", "hong thong" are all Thai alcohol brands — treat them the same as whisky/beer when picking icons or grouping drink expenses.
 
 ## Sharing the result
 

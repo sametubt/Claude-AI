@@ -275,7 +275,7 @@
     const k = (text || '').toLowerCase();
     // Golf goes first — "greens fees", "tee time" otherwise get caught by /fee/ or /tip/.
     if (/\bgolf|\btee\b|fairway|greens? fee|caddy|country club|driving range|18 holes?|\bbuggy\b/.test(k)) return ICONS.golf;
-    if (/whisk|bottle|liquor|vodka|tequila|gin|rum|champagne/.test(k))    return ICONS.bottle;
+    if (/whisk|bottle|liquor|vodka|tequila|gin|rum|champagne|regency|sang som|ruang khao|hong thong/.test(k)) return ICONS.bottle;
     if (/beer|wine|drink|booze|cocktail|round\b|bar\b/.test(k))           return ICONS.glass;
     if (/coffee|tea|latte|cappuccino|espresso|cafe/.test(k))              return ICONS.cup;
     if (/curry|rice|bowl/.test(k))                                        return ICONS.bowl;
