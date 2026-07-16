@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, claude/website-design-mockup-w66i3i]
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,10 @@ jobs:
           mkdir -p _site
           cp -r splitwise/web/* _site/
           cp -r splitwise/examples _site/examples
+          cp -r hongkong-trip _site/hongkong-trip
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
