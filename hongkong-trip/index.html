@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Plan — HONG KONG 2026 🇭🇰 แพลนเที่ยวฮ่องกง 4 วัน 3 คืน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=Itim&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --red:#b04038;
+    --red-dark:#8f2f28;
+    --pink-bg:#fdf0f0;
+    --pink-card:#f9dde2;
+    --pink-soft:#fbe7ea;
+    --yellow:#fbf3cf;
+    --brown:#7a615c;
+    --brown-soft:#9c837d;
+    --rose:#e8909f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{height:auto;overflow-y:auto}
+  body{
+    font-family:'Mali','Itim',-apple-system,'Segoe UI',sans-serif;
+    background:#f3dfe0;
+    color:var(--brown);
+    padding:18px 8px 60px;
+  }
+  .page{
+    width:100%;
+    max-width:520px;
+    margin:0 auto;
+    background:var(--pink-bg);
+    border-radius:26px;
+    overflow:hidden;
+    box-shadow:0 12px 40px rgba(176,64,56,.18);
+    position:relative;
+  }
+  /* ── decorative falling petals ── */
+  .petal{position:absolute;font-size:15px;opacity:.35;pointer-events:none;z-index:0}
+
+  /* ═══ HEADER ═══ */
+  header{
+    background:linear-gradient(180deg,#fef7ef 0%,#fdeee9 100%);
+    padding:0 0 18px;
+    position:relative;
+    border-bottom:3px dashed #eec6c6;
+  }
+  .topbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 16px 4px;
+    font-size:13px;color:var(--brown-soft);
+  }
+  .chip{
+    background:#fff;border:1.5px solid #eecaca;border-radius:999px;
+    padding:3px 14px;font-size:12px;color:var(--brown-soft);
+    box-shadow:0 2px 6px rgba(0,0,0,.05);
+  }
+  .skyline{display:block;width:100%;height:auto;margin-top:-6px}
+  .title-block{text-align:center;margin-top:-84px;position:relative;z-index:2}
+  .script{
+    font-family:'Playfair Display',serif;font-style:italic;
+    color:var(--red);font-size:22px;letter-spacing:1px;
+    transform:rotate(-3deg);display:inline-block;
+  }
+  h1{
+    font-family:'Playfair Display',serif;
+    font-weight:900;font-size:47px;line-height:.95;
+    color:var(--red);letter-spacing:2px;
+    text-shadow:2px 2px 0 #fff, 4px 4px 0 rgba(176,64,56,.15);
+  }
+  h1 .year{
+    display:block;font-size:34px;letter-spacing:10px;color:var(--red-dark);
+  }
+  .sub-pill{
+    display:inline-block;margin-top:10px;
+    background:var(--red);color:#fff7f0;
+    border-radius:999px;padding:6px 22px;
+    font-size:16px;font-weight:600;
+    box-shadow:0 3px 0 var(--red-dark);
+  }
+  .dates{
+    margin-top:8px;font-size:14px;color:var(--brown-soft);letter-spacing:2px;
+  }
+  .dates::before,.dates::after{content:"✿";color:var(--rose);margin:0 8px}
+
+  /* ═══ FLIGHT PILLS ═══ */
+  .flights{padding:18px 16px 4px;display:grid;gap:10px}
+  .flight{
+    background:var(--yellow);
+    border:2px dashed #e8d79a;
+    border-radius:22px;
+    padding:12px 18px;
+    font-size:14.5px;
+    line-height:1.9;
+    position:relative;
+  }
+  .flight .tag{
+    position:absolute;top:-11px;left:18px;
+    background:var(--red);color:#fff;border-radius:999px;
+    padding:1px 14px;font-size:12.5px;
+  }
+  .flight b{color:var(--red-dark)}
+  .arrows{color:var(--red);font-weight:700;letter-spacing:-1px;margin:0 6px}
+  .plane{margin-left:4px}
+
+  /* ═══ DAY SECTIONS ═══ */
+  main{padding:10px 16px 24px;position:relative;z-index:1}
+  .day{margin-top:26px}
+  .day-head{
+    display:flex;align-items:center;gap:10px;margin-bottom:12px;
+  }
+  .day-head .num{
+    font-family:'Playfair Display',serif;font-weight:900;
+    background:var(--red);color:#fff;
+    width:46px;height:46px;border-radius:50% 50% 50% 12%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;box-shadow:0 3px 0 var(--red-dark);
+    flex-shrink:0;
+  }
+  .day-head h2{
+    color:var(--red);font-size:20px;font-weight:700;line-height:1.25;
+  }
+  .day-head h2 small{
+    display:block;font-size:13px;color:var(--brown-soft);font-weight:500;
+  }
+  .card{
+    background:var(--pink-card);
+    border-radius:20px;
+    padding:16px 18px;
+    box-shadow:0 4px 12px rgba(176,64,56,.08);
+  }
+  .card ul{list-style:none}
+  .card li{
+    display:flex;gap:12px;
+    padding:7px 0;
+    font-size:14.5px;line-height:1.75;
+    border-bottom:1.5px dotted rgba(176,64,56,.18);
+  }
+  .card li:last-child{border-bottom:none}
+  .card .t{
+    color:var(--red-dark);font-weight:700;white-space:nowrap;
+    min-width:52px;font-size:14px;padding-top:1px;
+  }
+  .card li b{color:var(--red-dark);font-weight:600}
+  .hint{
+    background:#fff;border-radius:12px;
+    font-size:12.5px;color:var(--brown-soft);
+    padding:2px 10px;display:inline-block;margin-top:3px;
+  }
+
+  /* ═══ POLAROID PHOTOS ═══ */
+  .photos{
+    display:flex;flex-wrap:wrap;justify-content:center;
+    gap:14px;margin:18px 0 6px;
+  }
+  .polaroid{
+    background:#fff;
+    padding:7px 7px 6px;
+    border-radius:6px;
+    box-shadow:0 5px 14px rgba(120,70,60,.18);
+    width:calc(50% - 14px);
+    max-width:215px;
+    position:relative;
+  }
+  .polaroid svg{display:block;width:100%;height:auto;border-radius:4px}
+  .polaroid figcaption{
+    text-align:center;font-size:12px;color:var(--brown-soft);
+    padding-top:5px;font-family:'Playfair Display',serif;font-style:italic;
+  }
+  .polaroid::before{ /* washi tape */
+    content:"";position:absolute;top:-9px;left:50%;
+    transform:translateX(-50%) rotate(-2deg);
+    width:64px;height:18px;
+    background:rgba(232,144,159,.55);
+    border-left:1px dashed rgba(255,255,255,.8);
+    border-right:1px dashed rgba(255,255,255,.8);
+  }
+  .r-l{transform:rotate(-2.4deg)}
+  .r-r{transform:rotate(2.2deg)}
+  .r-l:hover,.r-r:hover{transform:rotate(0) scale(1.04);transition:.25s}
+
+  /* ═══ NOTE BOX ═══ */
+  .note{
+    margin-top:30px;
+    background:#fff;
+    border:2.5px dashed var(--rose);
+    border-radius:22px;
+    padding:16px 20px;
+    font-size:14px;line-height:2;
+  }
+  .note h3{
+    color:var(--red);font-size:17px;margin-bottom:6px;
+  }
+  .note li{margin-left:20px}
+
+  footer{
+    text-align:center;padding:0 16px 26px;
+    font-size:13px;color:var(--brown-soft);
+  }
+  footer .script{font-size:18px}
+
+  /* ═══ SOCIAL FLOAT (decoration like the reference app) ═══ */
+  .social{
+    position:absolute;right:10px;top:430px;
+    display:flex;flex-direction:column;gap:14px;
+    z-index:3;
+  }
+  .social div{
+    background:rgba(255,255,255,.9);
+    border-radius:999px;
+    width:46px;height:56px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-size:10.5px;color:var(--brown-soft);
+    box-shadow:0 3px 10px rgba(0,0,0,.10);
+  }
+  .social div span{font-size:19px;line-height:1.15}
+
+  @media (max-width:420px){
+    h1{font-size:42px}
+    h1 .year{font-size:28px;letter-spacing:7px}
+    .social{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- floating petals -->
+  <span class="petal" style="top:190px;left:6%">🌸</span>
+  <span class="petal" style="top:340px;right:8%">🌸</span>
+  <span class="petal" style="top:720px;left:4%">✿</span>
+  <span class="petal" style="top:1200px;right:5%">🌸</span>
+  <span class="petal" style="top:1800px;left:7%">✿</span>
+  <span class="petal" style="top:2400px;right:6%">🌸</span>
+
+  <!-- social decoration -->
+  <aside class="social">
+    <div><span>❤️</span>10.5K</div>
+    <div><span>💬</span>95</div>
+    <div><span>⭐</span>13.1K</div>
+  </aside>
+
+  <!-- ═══════════ HEADER ═══════════ -->
+  <header>
+    <div class="topbar">
+      <span>‹</span>
+      <span class="chip">Search 🔍</span>
+      <span class="chip">1/6</span>
+    </div>
+
+    <!-- pastel Hong Kong skyline -->
+    <svg class="skyline" viewBox="0 0 520 240" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="520" height="240" fill="#fef7ef"/>
+      <circle cx="430" cy="52" r="26" fill="#fbd9b6" opacity=".8"/>
+      <ellipse cx="90" cy="46" rx="40" ry="13" fill="#fff" opacity=".9"/>
+      <ellipse cx="125" cy="52" rx="30" ry="10" fill="#fff" opacity=".9"/>
+      <ellipse cx="350" cy="34" rx="34" ry="11" fill="#fff" opacity=".85"/>
+      <!-- mountains -->
+      <path d="M0 190 Q70 120 150 185 Q230 115 320 185 Q410 125 520 188 L520 240 L0 240 Z" fill="#f3d9d4" opacity=".7"/>
+      <!-- buildings -->
+      <rect x="30" y="120" width="34" height="110" fill="#cfe0ea"/>
+      <rect x="36" y="106" width="22" height="16" fill="#cfe0ea"/>
+      <rect x="78" y="96" width="30" height="134" fill="#e9c8cd"/>
+      <polygon points="78,96 108,96 93,74" fill="#e9c8cd"/>
+      <rect x="122" y="130" width="40" height="100" fill="#d8e6da"/>
+      <!-- Bank of China style -->
+      <polygon points="185,230 185,90 210,60 235,90 235,230" fill="#bcd4e6"/>
+      <line x1="185" y1="120" x2="235" y2="160" stroke="#fff" stroke-width="2.5"/>
+      <line x1="235" y1="120" x2="185" y2="160" stroke="#fff" stroke-width="2.5"/>
+      <line x1="185" y1="170" x2="235" y2="210" stroke="#fff" stroke-width="2.5"/>
+      <rect x="208" y="40" width="4" height="22" fill="#bcd4e6"/>
+      <!-- IFC tower -->
+      <rect x="258" y="70" width="44" height="160" fill="#f0cfc2"/>
+      <polygon points="258,70 302,70 296,52 264,52" fill="#f0cfc2"/>
+      <g fill="#fff" opacity=".75">
+        <rect x="264" y="82" width="8" height="10"/><rect x="278" y="82" width="8" height="10"/><rect x="292" y="82" width="6" height="10"/>
+        <rect x="264" y="100" width="8" height="10"/><rect x="278" y="100" width="8" height="10"/><rect x="292" y="100" width="6" height="10"/>
+        <rect x="264" y="118" width="8" height="10"/><rect x="278" y="118" width="8" height="10"/><rect x="292" y="118" width="6" height="10"/>
+        <rect x="264" y="136" width="8" height="10"/><rect x="278" y="136" width="8" height="10"/><rect x="292" y="136" width="6" height="10"/>
+      </g>
+      <rect x="318" y="112" width="30" height="118" fill="#d3d9ee"/>
+      <rect x="324" y="98" width="18" height="14" fill="#d3d9ee"/>
+      <!-- red pagoda -->
+      <g>
+        <rect x="392" y="196" width="56" height="34" fill="#c25048"/>
+        <path d="M382 196 L458 196 L440 178 L400 178 Z" fill="#a63a32"/>
+        <rect x="402" y="152" width="36" height="26" fill="#c25048"/>
+        <path d="M392 152 L448 152 L434 136 L406 136 Z" fill="#a63a32"/>
+        <rect x="410" y="114" width="20" height="22" fill="#c25048"/>
+        <path d="M402 114 L438 114 L428 100 L412 100 Z" fill="#a63a32"/>
+        <rect x="418" y="88" width="4" height="12" fill="#a63a32"/>
+        <rect x="408" y="204" width="10" height="16" fill="#fbe9d8"/>
+        <rect x="424" y="204" width="10" height="16" fill="#fbe9d8"/>
+      </g>
+      <rect x="470" y="140" width="30" height="90" fill="#e6d3e6"/>
+      <!-- water -->
+      <rect x="0" y="228" width="520" height="12" fill="#cfe4ec"/>
+      <path d="M20 233 q10 -4 20 0 M120 235 q10 -4 20 0 M300 233 q10 -4 20 0 M440 235 q10 -4 20 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </svg>
+
+    <div class="title-block">
+      <span class="script">Travel Plan ♡</span>
+      <h1>HONG&nbsp;KONG<span class="year">2026</span></h1>
+      <span class="sub-pill">แพลนเที่ยวฮ่องกง 4 วัน 3 คืน</span>
+      <div class="dates">1 — 4 OCTOBER 2026</div>
+    </div>
+  </header>
+
+  <!-- ═══════════ FLIGHTS ═══════════ -->
+  <section class="flights">
+    <div class="flight">
+      <span class="tag">✈️ ขาไป : 1 ต.ค. 69</span>
+      ดอนเมือง <b>DMK</b><span class="arrows">&gt;&gt;&gt;</span>ฮ่องกง <b>HKG</b><br>
+      เวลา <b>06 : 40</b><span class="arrows">&gt;&gt;&gt;</span><b>10 : 25</b><span class="plane">🛫</span>
+    </div>
+    <div class="flight">
+      <span class="tag">✈️ ขากลับ : 4 ต.ค. 69</span>
+      ฮ่องกง <b>HKG</b><span class="arrows">&gt;&gt;&gt;</span>สุวรรณภูมิ <b>BKK</b><br>
+      เวลา <b>21 : 35</b><span class="arrows">&gt;&gt;&gt;</span><b>23 : 40</b><span class="plane">🛬</span>
+    </div>
+  </section>
+
+  <main>
+
+    <!-- ═══════════ DAY 1 ═══════════ -->
+    <section class="day">
+      <div class="day-head">
+        <span class="num">1</span>
+        <h2>จิมซาจุ่ย &amp; อ่าววิคตอเรีย<small>Tsim Sha Tsui • Victoria Harbour</small></h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li><span class="t">06:40</span><span>บินจากสนามบิน<b>ดอนเมือง (DMK)</b> ✈️</span></li>
+          <li><span class="t">10:25</span><span>ถึงสนามบินฮ่องกง นั่ง <b>Airport Express</b> เข้าเมือง<br><span class="hint">💳 ซื้อบัตร Octopus ที่สนามบินเลย ใช้ได้ทั้งรถไฟ รถราง เรือ</span></span></li>
+          <li><span class="t">12:00</span><span>เช็คอินที่พักย่าน <b>จิมซาจุ่ย</b> ฝากกระเป๋า</span></li>
+          <li><span class="t">13:00</span><span>มื้อแรก! ติ่มซำ <b>Tim Ho Wan</b> ⭐ มิชลินราคาน่ารัก<br><span class="hint">🥟 ต้องสั่ง! ซาลาเปาหมูแดงอบ + ฮะเก๋า</span></span></li>
+          <li><span class="t">15:00</span><span>เดินเล่น <b>Avenue of Stars</b> ริมอ่าววิคตอเรีย ถ่ายรูปวิวตึกฝั่งเกาะฮ่องกง</span></li>
+          <li><span class="t">17:00</span><span>ช้อปปิ้ง <b>ถนน Nathan Road</b> + ห้าง <b>K11 MUSEA</b></span></li>
+          <li><span class="t">20:00</span><span>ชมโชว์แสงสี <b>Symphony of Lights</b> ✨ ริมอ่าว (โชว์ฟรีทุกคืน 2 ทุ่ม!)</span></li>
+        </ul>
+      </div>
+
+      <div class="photos">
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="วิวอ่าววิคตอเรียยามค่ำ">
+            <defs><linearGradient id="nite" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#3d3560"/><stop offset="1" stop-color="#8d6f9c"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#nite)"/>
+            <circle cx="168" cy="26" r="12" fill="#fdf3d0"/>
+            <circle cx="40" cy="20" r="1.6" fill="#fff"/><circle cx="70" cy="34" r="1.3" fill="#fff"/><circle cx="110" cy="16" r="1.6" fill="#fff"/><circle cx="140" cy="40" r="1.2" fill="#fff"/>
+            <rect x="12" y="58" width="20" height="52" fill="#2c2749"/>
+            <polygon points="38,110 38,52 50,38 62,52 62,110" fill="#352e55"/>
+            <line x1="38" y1="66" x2="62" y2="84" stroke="#ffd98e" stroke-width="1.4"/>
+            <line x1="62" y1="66" x2="38" y2="84" stroke="#ffd98e" stroke-width="1.4"/>
+            <rect x="70" y="44" width="26" height="66" fill="#2c2749"/>
+            <g fill="#ffd98e"><rect x="74" y="50" width="5" height="6"/><rect x="84" y="50" width="5" height="6"/><rect x="74" y="62" width="5" height="6"/><rect x="84" y="62" width="5" height="6"/><rect x="74" y="74" width="5" height="6"/><rect x="84" y="74" width="5" height="6"/></g>
+            <rect x="104" y="60" width="18" height="50" fill="#352e55"/>
+            <rect x="128" y="50" width="24" height="60" fill="#2c2749"/>
+            <g fill="#ffcf7e"><rect x="132" y="56" width="4" height="5"/><rect x="140" y="56" width="4" height="5"/><rect x="132" y="68" width="4" height="5"/><rect x="140" y="68" width="4" height="5"/></g>
+            <rect x="158" y="70" width="16" height="40" fill="#352e55"/>
+            <rect x="0" y="110" width="200" height="40" fill="#241f3d"/>
+            <path d="M10 118 q8 -3 16 0 M60 124 q8 -3 16 0 M120 118 q8 -3 16 0 M170 126 q8 -3 16 0" stroke="#ffd98e" stroke-width="1.4" fill="none" opacity=".7"/>
+            <!-- junk boat -->
+            <path d="M78 132 Q100 140 124 132 L118 124 L84 124 Z" fill="#5b2422"/>
+            <path d="M100 124 L100 96 Q118 108 100 118 Z" fill="#c25048"/>
+            <path d="M99 124 L99 102 Q84 110 99 118 Z" fill="#a63a32"/>
+          </svg>
+          <figcaption>Victoria Harbour ✨</figcaption>
+        </figure>
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ติ่มซำ">
+            <rect width="200" height="150" fill="#fbe9ea"/>
+            <circle cx="100" cy="84" r="56" fill="#f6d3d8"/>
+            <!-- steamer -->
+            <ellipse cx="100" cy="102" rx="52" ry="12" fill="#c99b6a"/>
+            <rect x="48" y="78" width="104" height="24" rx="8" fill="#e0b586"/>
+            <path d="M48 84 h104" stroke="#c99b6a" stroke-width="3"/>
+            <!-- bao -->
+            <ellipse cx="74" cy="72" rx="18" ry="14" fill="#fffdf8"/>
+            <path d="M68 62 q6 -6 12 0 M64 68 q4 -4 8 0 M80 68 q4 -4 8 0" stroke="#eedbc8" stroke-width="1.6" fill="none"/>
+            <circle cx="69" cy="72" r="1.6" fill="#8f6f5c"/><circle cx="79" cy="72" r="1.6" fill="#8f6f5c"/>
+            <path d="M70 78 q4 3 8 0" stroke="#8f6f5c" stroke-width="1.4" fill="none"/>
+            <circle cx="63" cy="75" r="2.4" fill="#f4b8bd"/><circle cx="85" cy="75" r="2.4" fill="#f4b8bd"/>
+            <!-- dumpling -->
+            <path d="M108 82 Q110 62 126 62 Q142 62 144 82 Q126 88 108 82" fill="#ffe9b8"/>
+            <path d="M114 70 q3 -4 6 0 M122 66 q3 -4 6 0 M130 68 q3 -4 6 0" stroke="#e8c98a" stroke-width="1.5" fill="none"/>
+            <!-- steam -->
+            <path d="M80 44 q-5 -8 0 -16 M100 40 q-5 -8 0 -16 M120 44 q-5 -8 0 -16" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".9"/>
+            <text x="100" y="136" font-size="13" text-anchor="middle" fill="#b04038" font-family="sans-serif">🥟 Tim Ho Wan</text>
+          </svg>
+          <figcaption>dim sum time 🥢</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═══════════ DAY 2 ═══════════ -->
+    <section class="day">
+      <div class="day-head">
+        <span class="num">2</span>
+        <h2>เกาะลันเตา — นองปิง &amp; ไทโอ<small>Ngong Ping 360 • Big Buddha • Tai O</small></h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li><span class="t">08:00</span><span>เช้านี้กิน<b>ไข่ตุ๋นนม + ชานมฮ่องกง</b> ร้าน Australia Dairy Company 🍮</span></li>
+          <li><span class="t">09:30</span><span>นั่งกระเช้า <b>Ngong Ping 360</b> 🚡<br><span class="hint">💡 อัพเกรดเป็น Crystal Cabin พื้นกระจกใส ฟินมาก!</span></span></li>
+          <li><span class="t">11:00</span><span>สักการะ<b>พระใหญ่เทียนถาน (Big Buddha)</b> + วัดโปหลิน 🙏</span></li>
+          <li><span class="t">13:00</span><span>นั่งรถบัสไป<b>หมู่บ้านชาวประมงไทโอ (Tai O)</b> เวนิสแห่งฮ่องกง กินลูกชิ้นปลา นั่งเรือดูบ้านไม้เสาสูง</span></li>
+          <li><span class="t">16:00</span><span>ช้อปแบรนด์ลดราคาที่ <b>Citygate Outlets</b> ตงชุง 🛍️</span></li>
+          <li><span class="t">19:00</span><span>กลับเข้าเมือง ดินเนอร์<b>ห่านย่างร้าน Yat Lok</b> ⭐ มิชลิน</span></li>
+        </ul>
+      </div>
+
+      <div class="photos">
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="กระเช้านองปิง 360">
+            <defs><linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#bfe0ee"/><stop offset="1" stop-color="#eaf6f0"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky2)"/>
+            <ellipse cx="46" cy="30" rx="24" ry="9" fill="#fff"/>
+            <ellipse cx="150" cy="22" rx="20" ry="8" fill="#fff"/>
+            <path d="M0 150 Q40 92 90 128 Q140 88 200 130 L200 150 Z" fill="#a8c9a2"/>
+            <path d="M0 150 Q60 112 120 142 Q160 116 200 142 L200 150 Z" fill="#8fb98a"/>
+            <line x1="0" y1="52" x2="200" y2="34" stroke="#8a8a95" stroke-width="2.4"/>
+            <!-- cabin -->
+            <line x1="100" y1="43" x2="100" y2="58" stroke="#5f5f6a" stroke-width="3"/>
+            <rect x="80" y="58" width="40" height="34" rx="8" fill="#5a7ea8"/>
+            <rect x="85" y="64" width="30" height="16" rx="4" fill="#dff0fa"/>
+            <circle cx="93" cy="72" r="3.2" fill="#7a615c"/><circle cx="107" cy="72" r="3.2" fill="#7a615c"/>
+            <path d="M90 76 q3 2.5 6 0 M104 76 q3 2.5 6 0" stroke="#7a615c" stroke-width="1.3" fill="none"/>
+            <line x1="100" y1="92" x2="100" y2="98" stroke="#5f5f6a" stroke-width="2"/>
+            <!-- tiny buddha on hill -->
+            <ellipse cx="162" cy="108" rx="16" ry="5" fill="#7ea979"/>
+            <circle cx="162" cy="92" r="6" fill="#8d8d98"/>
+            <path d="M150 108 Q162 84 174 108 Z" fill="#8d8d98"/>
+          </svg>
+          <figcaption>Ngong Ping 360 🚡</figcaption>
+        </figure>
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="พระใหญ่เทียนถาน">
+            <defs><linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fbdfc9"/><stop offset="1" stop-color="#fdf2e4"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky3)"/>
+            <circle cx="100" cy="66" r="40" fill="#fff" opacity=".5"/>
+            <!-- buddha -->
+            <circle cx="100" cy="52" r="14" fill="#8d95a3"/>
+            <circle cx="100" cy="36" r="4" fill="#8d95a3"/>
+            <path d="M74 98 Q78 68 100 66 Q122 68 126 98 Z" fill="#8d95a3"/>
+            <path d="M74 98 Q100 108 126 98 L126 104 Q100 114 74 104 Z" fill="#7a8290"/>
+            <path d="M84 76 q-10 8 -6 20 M116 76 q10 8 6 20" stroke="#7a8290" stroke-width="3" fill="none"/>
+            <circle cx="96" cy="50" r="1.6" fill="#5d6572"/><circle cx="104" cy="50" r="1.6" fill="#5d6572"/>
+            <path d="M96 57 q4 3 8 0" stroke="#5d6572" stroke-width="1.3" fill="none"/>
+            <!-- lotus base -->
+            <path d="M64 112 Q100 100 136 112 L130 122 L70 122 Z" fill="#a9b2bf"/>
+            <path d="M70 112 q6 -8 12 0 M86 110 q6 -8 12 0 M102 110 q6 -8 12 0 M118 112 q6 -8 12 0" stroke="#8d95a3" stroke-width="2" fill="none"/>
+            <!-- steps -->
+            <rect x="58" y="122" width="84" height="6" fill="#c7ccd6"/>
+            <rect x="50" y="128" width="100" height="6" fill="#d8dce4"/>
+            <rect x="42" y="134" width="116" height="6" fill="#e8ebf0"/>
+            <text x="100" y="24" font-size="12" text-anchor="middle" fill="#b04038" font-family="sans-serif">🙏 Tian Tan Buddha</text>
+          </svg>
+          <figcaption>Big Buddha 🙏</figcaption>
+        </figure>
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="หมู่บ้านไทโอ">
+            <defs><linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#cde9ef"/><stop offset="1" stop-color="#f4fbf6"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky4)"/>
+            <ellipse cx="60" cy="26" rx="22" ry="8" fill="#fff"/>
+            <!-- stilt houses -->
+            <g>
+              <rect x="22" y="58" width="44" height="34" fill="#cfa07e"/>
+              <polygon points="16,58 72,58 44,40" fill="#9c6b4e"/>
+              <rect x="36" y="72" width="14" height="20" fill="#7a5238"/>
+              <line x1="28" y1="92" x2="28" y2="116" stroke="#7a5238" stroke-width="4"/>
+              <line x1="58" y1="92" x2="58" y2="116" stroke="#7a5238" stroke-width="4"/>
+            </g>
+            <g>
+              <rect x="86" y="50" width="48" height="38" fill="#e3bb92"/>
+              <polygon points="80,50 140,50 110,32" fill="#b07f5c"/>
+              <rect x="96" y="60" width="12" height="12" fill="#fdf3e0"/>
+              <rect x="116" y="60" width="12" height="12" fill="#fdf3e0"/>
+              <line x1="92" y1="88" x2="92" y2="114" stroke="#7a5238" stroke-width="4"/>
+              <line x1="128" y1="88" x2="128" y2="114" stroke="#7a5238" stroke-width="4"/>
+            </g>
+            <g>
+              <rect x="150" y="60" width="38" height="30" fill="#cfa07e"/>
+              <polygon points="144,60 194,60 169,44" fill="#9c6b4e"/>
+              <line x1="156" y1="90" x2="156" y2="114" stroke="#7a5238" stroke-width="4"/>
+              <line x1="182" y1="90" x2="182" y2="114" stroke="#7a5238" stroke-width="4"/>
+            </g>
+            <!-- water -->
+            <rect x="0" y="112" width="200" height="38" fill="#9fd0dc"/>
+            <path d="M14 122 q9 -3 18 0 M60 130 q9 -3 18 0 M120 124 q9 -3 18 0 M164 132 q9 -3 18 0" stroke="#fff" stroke-width="2" fill="none" opacity=".8"/>
+            <!-- boat -->
+            <path d="M70 138 Q95 146 120 138 L114 130 L76 130 Z" fill="#8a5a3c"/>
+            <circle cx="95" cy="124" r="5" fill="#f2c9a2"/><rect x="91" y="128" width="8" height="6" rx="2" fill="#c25048"/>
+          </svg>
+          <figcaption>Tai O village 🛶</figcaption>
+        </figure>
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ห่านย่างและชานม">
+            <rect width="200" height="150" fill="#fdf1e3"/>
+            <circle cx="100" cy="80" r="56" fill="#fbe3c9"/>
+            <!-- roast goose plate -->
+            <ellipse cx="72" cy="98" rx="40" ry="14" fill="#fff"/>
+            <path d="M42 92 Q52 68 78 70 Q102 72 100 92 Q72 102 42 92" fill="#b3562e"/>
+            <path d="M52 84 q6 -5 12 -1 M68 78 q6 -5 12 -1 M82 84 q5 -4 10 0" stroke="#8a3c1d" stroke-width="1.8" fill="none"/>
+            <path d="M46 92 q28 8 52 0" stroke="#e2a066" stroke-width="2" fill="none"/>
+            <!-- milk tea -->
+            <path d="M128 62 L156 62 L152 112 L132 112 Z" fill="#e9d6c4"/>
+            <path d="M129 74 L155 74 L152 112 L132 112 Z" fill="#c89e72"/>
+            <rect x="126" y="56" width="32" height="8" rx="4" fill="#fff"/>
+            <line x1="148" y1="46" x2="142" y2="70" stroke="#e8909f" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="138" cy="88" r="2.6" fill="#6d4a2c"/><circle cx="146" cy="96" r="2.6" fill="#6d4a2c"/><circle cx="140" cy="104" r="2.6" fill="#6d4a2c"/>
+            <text x="100" y="136" font-size="13" text-anchor="middle" fill="#b04038" font-family="sans-serif">🦢 Yat Lok + 🧋</text>
+          </svg>
+          <figcaption>roast goose &amp; milk tea</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═══════════ DAY 3 ═══════════ -->
+    <section class="day">
+      <div class="day-head">
+        <span class="num">3</span>
+        <h2>วิคตอเรียพีค &amp; มงก๊ก<small>Victoria Peak • Central • Mong Kok</small></h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li><span class="t">09:00</span><span>นั่งรถราง <b>Peak Tram</b> 🚋 ขึ้นยอดเขาวิคตอเรียพีค<br><span class="hint">💡 ไปเช้าๆ คิวยังไม่ยาว จองตั๋วออนไลน์ล่วงหน้าถูกกว่า</span></span></li>
+          <li><span class="t">10:00</span><span>ชมวิวมุมสูงที่ <b>Sky Terrace 428</b> 📸 เห็นทั้งอ่าววิคตอเรีย</span></li>
+          <li><span class="t">12:30</span><span>ลงมาย่าน <b>Central</b> นั่งบันไดเลื่อนกลางแจ้งที่ยาวที่สุดในโลก <b>Mid-Levels Escalator</b></span></li>
+          <li><span class="t">14:00</span><span>ไหว้ขอพร<b>วัดหมั่นโหมว (Man Mo Temple)</b> 🕯️ ขดธูปวงใหญ่สวยมาก</span></li>
+          <li><span class="t">16:00</span><span>นั่งรถราง <b>Ding Ding</b> 2 ชั้น ชมเมืองแบบ local (แค่ 3 HKD!)</span></li>
+          <li><span class="t">18:00</span><span>ข้ามไปมงก๊ก เดิน <b>Ladies Market</b> + <b>Sneaker Street</b> 👟</span></li>
+          <li><span class="t">20:30</span><span>มื้อดึก! <b>บะหมี่เกี๊ยวกุ้ง</b> + ขนมไข่ <b>Bubble Waffle</b> 🧇</span></li>
+        </ul>
+      </div>
+
+      <div class="photos">
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="รถราง Peak Tram">
+            <defs><linearGradient id="sky5" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#c8e6ee"/><stop offset="1" stop-color="#f0f8ee"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky5)"/>
+            <ellipse cx="150" cy="28" rx="24" ry="9" fill="#fff"/>
+            <path d="M0 150 L0 96 Q60 60 200 20 L200 150 Z" fill="#9fbf92"/>
+            <path d="M0 150 L0 116 Q80 84 200 52 L200 150 Z" fill="#b7d3aa"/>
+            <!-- track -->
+            <line x1="10" y1="128" x2="190" y2="64" stroke="#7a615c" stroke-width="4"/>
+            <line x1="30" y1="126" x2="34" y2="134" stroke="#7a615c" stroke-width="2"/>
+            <line x1="70" y1="112" x2="74" y2="120" stroke="#7a615c" stroke-width="2"/>
+            <line x1="110" y1="98" x2="114" y2="106" stroke="#7a615c" stroke-width="2"/>
+            <line x1="150" y1="84" x2="154" y2="92" stroke="#7a615c" stroke-width="2"/>
+            <!-- tram tilted -->
+            <g transform="rotate(-19 100 96)">
+              <rect x="58" y="76" width="84" height="34" rx="9" fill="#b04038"/>
+              <rect x="66" y="82" width="16" height="13" rx="3" fill="#ffe9c9"/>
+              <rect x="88" y="82" width="16" height="13" rx="3" fill="#ffe9c9"/>
+              <rect x="110" y="82" width="16" height="13" rx="3" fill="#ffe9c9"/>
+              <rect x="58" y="100" width="84" height="5" fill="#8f2f28"/>
+              <circle cx="94" cy="88" r="2.4" fill="#7a615c"/><path d="M91 92 q3 2 6 0" stroke="#7a615c" stroke-width="1.2" fill="none"/>
+            </g>
+            <text x="58" y="34" font-size="12" fill="#b04038" font-family="sans-serif">🚋 The Peak Tram</text>
+          </svg>
+          <figcaption>Peak Tram 🚋</figcaption>
+        </figure>
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="วิวจาก Sky Terrace">
+            <defs><linearGradient id="sky6" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f7c8b2"/><stop offset=".55" stop-color="#f4dcc8"/><stop offset="1" stop-color="#cfe4ec"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky6)"/>
+            <circle cx="100" cy="52" r="15" fill="#f7986e" opacity=".85"/>
+            <!-- distant skyline from above -->
+            <rect x="0" y="86" width="200" height="34" fill="#cfe4ec"/>
+            <g fill="#94a8c4">
+              <rect x="16" y="62" width="12" height="42"/>
+              <rect x="34" y="52" width="14" height="52"/>
+              <polygon points="56,104 56,58 64,44 72,58 72,104"/>
+              <rect x="80" y="66" width="12" height="38"/>
+              <rect x="98" y="48" width="16" height="56"/>
+              <rect x="122" y="60" width="12" height="44"/>
+              <rect x="140" y="70" width="14" height="34"/>
+              <rect x="162" y="58" width="12" height="46"/>
+            </g>
+            <path d="M20 112 q10 -3 20 0 M80 116 q10 -3 20 0 M150 112 q10 -3 20 0" stroke="#fff" stroke-width="2" fill="none" opacity=".8"/>
+            <!-- foreground peak -->
+            <path d="M0 150 Q50 118 110 134 Q160 144 200 136 L200 150 Z" fill="#7fa877"/>
+            <path d="M28 130 q4 -8 8 0 M44 128 q4 -8 8 0" stroke="#5e8659" stroke-width="3" fill="none"/>
+            <text x="100" y="26" font-size="12" text-anchor="middle" fill="#8f2f28" font-family="sans-serif">📸 Sky Terrace 428</text>
+          </svg>
+          <figcaption>view from the Peak</figcaption>
+        </figure>
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="รถราง Ding Ding">
+            <rect width="200" height="150" fill="#e8eef2"/>
+            <rect x="0" y="118" width="200" height="32" fill="#b9bec6"/>
+            <line x1="0" y1="126" x2="200" y2="126" stroke="#fff" stroke-width="2" stroke-dasharray="10 8"/>
+            <rect x="10" y="26" width="30" height="92" fill="#d7c9d9"/>
+            <rect x="164" y="34" width="28" height="84" fill="#c9d7cd"/>
+            <!-- ding ding double decker -->
+            <rect x="58" y="30" width="84" height="88" rx="8" fill="#3f7d5a"/>
+            <rect x="58" y="70" width="84" height="7" fill="#2c5e42"/>
+            <g fill="#e8f4ec">
+              <rect x="66" y="38" width="16" height="14" rx="3"/><rect x="88" y="38" width="16" height="14" rx="3"/><rect x="110" y="38" width="16" height="14" rx="3"/>
+              <rect x="66" y="82" width="16" height="14" rx="3"/><rect x="88" y="82" width="16" height="14" rx="3"/><rect x="110" y="82" width="16" height="14" rx="3"/>
+            </g>
+            <circle cx="94" cy="44" r="2.4" fill="#3b5548"/><path d="M91 48 q3 2 6 0" stroke="#3b5548" stroke-width="1.2" fill="none"/>
+            <rect x="84" y="102" width="32" height="10" rx="4" fill="#fbe9b0"/>
+            <text x="100" y="111" font-size="8" text-anchor="middle" fill="#3f7d5a" font-family="sans-serif">DING DING</text>
+            <circle cx="76" cy="120" r="7" fill="#333"/><circle cx="124" cy="120" r="7" fill="#333"/>
+            <line x1="100" y1="30" x2="100" y2="16" stroke="#555" stroke-width="2.4"/>
+            <line x1="0" y1="14" x2="200" y2="14" stroke="#8a8a95" stroke-width="2"/>
+          </svg>
+          <figcaption>Ding Ding tram 🔔</figcaption>
+        </figure>
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ป้ายไฟย่านมงก๊ก">
+            <rect width="200" height="150" fill="#2b2440"/>
+            <rect x="0" y="126" width="200" height="24" fill="#1e1930"/>
+            <path d="M20 132 q8 -3 16 0 M90 136 q8 -3 16 0 M160 132 q8 -3 16 0" stroke="#ff9db0" stroke-width="1.6" fill="none" opacity=".55"/>
+            <!-- neon signs -->
+            <rect x="14" y="18" width="34" height="72" rx="6" fill="#c2274f"/>
+            <text x="31" y="42" font-size="18" text-anchor="middle" fill="#ffe08a" font-family="sans-serif">港</text>
+            <text x="31" y="66" font-size="18" text-anchor="middle" fill="#ffe08a" font-family="sans-serif">式</text>
+            <rect x="58" y="34" width="30" height="56" rx="6" fill="#1e7f74"/>
+            <text x="73" y="58" font-size="16" text-anchor="middle" fill="#c8fff2" font-family="sans-serif">茶</text>
+            <text x="73" y="80" font-size="16" text-anchor="middle" fill="#c8fff2" font-family="sans-serif">餐</text>
+            <rect x="100" y="14" width="58" height="26" rx="13" fill="#f2b03d"/>
+            <text x="129" y="32" font-size="13" text-anchor="middle" fill="#8a2c22" font-family="sans-serif">麵家 🍜</text>
+            <rect x="108" y="50" width="34" height="44" rx="6" fill="#5460c8"/>
+            <text x="125" y="70" font-size="14" text-anchor="middle" fill="#dfe6ff" font-family="sans-serif">雙</text>
+            <text x="125" y="88" font-size="14" text-anchor="middle" fill="#dfe6ff" font-family="sans-serif">皮</text>
+            <rect x="152" y="46" width="36" height="24" rx="12" fill="#e8628a"/>
+            <text x="170" y="62" font-size="11" text-anchor="middle" fill="#fff" font-family="sans-serif">奶茶</text>
+            <!-- crowd -->
+            <circle cx="50" cy="116" r="6" fill="#f2c9a2"/><rect x="45" y="121" width="10" height="12" rx="3" fill="#c2537e"/>
+            <circle cx="104" cy="118" r="6" fill="#f2c9a2"/><rect x="99" y="123" width="10" height="11" rx="3" fill="#4d6fa8"/>
+            <circle cx="150" cy="116" r="6" fill="#f2c9a2"/><rect x="145" y="121" width="10" height="12" rx="3" fill="#4f8a5c"/>
+            <text x="100" y="146" font-size="10" text-anchor="middle" fill="#ff9db0" font-family="sans-serif">Mong Kok nights ✨</text>
+          </svg>
+          <figcaption>Mong Kok 🌃</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═══════════ DAY 4 ═══════════ -->
+    <section class="day">
+      <div class="day-head">
+        <span class="num">4</span>
+        <h2>สายมู ขอพร &amp; ช้อปส่งท้าย<small>Wong Tai Sin • Choi Hung • fly home</small></h2>
+      </div>
+      <div class="card">
+        <ul>
+          <li><span class="t">09:00</span><span>ไหว้<b>วัดหวังต้าเซียน (Wong Tai Sin)</b> 🧧 ขอพรโชคลาภ เสี่ยงเซียมซีแม่นมาก</span></li>
+          <li><span class="t">11:00</span><span>ถ่ายรูป<b>ตึกสายรุ้ง Choi Hung Estate</b> 🌈 จุดเช็คอินสุดฮิต</span></li>
+          <li><span class="t">13:00</span><span>ไหว้<b>เจ้าแม่กวนอิมฮงฮำ</b> ยืมเงินเจ้าแม่เสริมทรัพย์ 💰</span></li>
+          <li><span class="t">15:00</span><span>ซื้อของฝาก! คุกกี้ <b>Jenny Bakery</b> 🍪 + หมูแผ่น + ชาฮ่องกง</span></li>
+          <li><span class="t">18:00</span><span>เดินทางไปสนามบิน <b>HKG</b> (เผื่อเวลาคืนบัตร Octopus)</span></li>
+          <li><span class="t">21:35</span><span>บินกลับ<b>กรุงเทพฯ (BKK)</b> 🛬 ถึงไทย 23:40 — จบทริปแบบฟินๆ 💗</span></li>
+        </ul>
+      </div>
+
+      <div class="photos">
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="วัดหวังต้าเซียน">
+            <defs><linearGradient id="sky7" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#fde3d0"/><stop offset="1" stop-color="#fdf4e6"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky7)"/>
+            <!-- temple -->
+            <path d="M30 66 Q100 40 170 66 L158 58 Q100 36 42 58 Z" fill="#b04038"/>
+            <path d="M28 68 Q22 60 14 60 M172 68 Q178 60 186 60" stroke="#b04038" stroke-width="5" fill="none" stroke-linecap="round"/>
+            <rect x="44" y="66" width="112" height="10" fill="#e0a33c"/>
+            <rect x="50" y="76" width="100" height="40" fill="#c25048"/>
+            <rect x="60" y="82" width="18" height="34" fill="#8f2f28"/>
+            <rect x="91" y="82" width="18" height="34" fill="#f7e3b2"/>
+            <rect x="122" y="82" width="18" height="34" fill="#8f2f28"/>
+            <line x1="50" y1="76" x2="50" y2="116" stroke="#8f2f28" stroke-width="4"/>
+            <line x1="150" y1="76" x2="150" y2="116" stroke="#8f2f28" stroke-width="4"/>
+            <rect x="36" y="116" width="128" height="8" fill="#d8b26a"/>
+            <rect x="28" y="124" width="144" height="8" fill="#e8cf9a"/>
+            <!-- incense smoke -->
+            <path d="M84 60 q-4 -8 0 -14 q4 -6 0 -12 M116 60 q4 -8 0 -14 q-4 -6 0 -12" stroke="#c9c2ba" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <!-- lanterns -->
+            <circle cx="40" cy="92" r="8" fill="#e84c3d"/><rect x="37" y="82" width="6" height="4" fill="#e0a33c"/><line x1="40" y1="100" x2="40" y2="106" stroke="#e0a33c" stroke-width="2"/>
+            <circle cx="160" cy="92" r="8" fill="#e84c3d"/><rect x="157" y="82" width="6" height="4" fill="#e0a33c"/><line x1="160" y1="100" x2="160" y2="106" stroke="#e0a33c" stroke-width="2"/>
+            <text x="100" y="146" font-size="10" text-anchor="middle" fill="#b04038" font-family="sans-serif">🧧 Wong Tai Sin Temple</text>
+          </svg>
+          <figcaption>สายมูต้องมา 🧧</figcaption>
+        </figure>
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ตึกสายรุ้ง Choi Hung">
+            <rect width="200" height="150" fill="#dff0f6"/>
+            <!-- rainbow building -->
+            <g>
+              <rect x="30" y="16" width="140" height="14" fill="#e8697d"/>
+              <rect x="30" y="30" width="140" height="14" fill="#f2a45c"/>
+              <rect x="30" y="44" width="140" height="14" fill="#f2d15c"/>
+              <rect x="30" y="58" width="140" height="14" fill="#8fbf7f"/>
+              <rect x="30" y="72" width="140" height="14" fill="#6f9fd8"/>
+              <rect x="30" y="86" width="140" height="14" fill="#9b7fc0"/>
+            </g>
+            <g fill="#fff" opacity=".85">
+              <rect x="40" y="20" width="7" height="7"/><rect x="58" y="20" width="7" height="7"/><rect x="76" y="20" width="7" height="7"/><rect x="94" y="20" width="7" height="7"/><rect x="112" y="20" width="7" height="7"/><rect x="130" y="20" width="7" height="7"/><rect x="148" y="20" width="7" height="7"/>
+              <rect x="40" y="48" width="7" height="7"/><rect x="58" y="48" width="7" height="7"/><rect x="76" y="48" width="7" height="7"/><rect x="94" y="48" width="7" height="7"/><rect x="112" y="48" width="7" height="7"/><rect x="130" y="48" width="7" height="7"/><rect x="148" y="48" width="7" height="7"/>
+              <rect x="40" y="76" width="7" height="7"/><rect x="58" y="76" width="7" height="7"/><rect x="76" y="76" width="7" height="7"/><rect x="94" y="76" width="7" height="7"/><rect x="112" y="76" width="7" height="7"/><rect x="130" y="76" width="7" height="7"/><rect x="148" y="76" width="7" height="7"/>
+            </g>
+            <!-- basketball court -->
+            <rect x="0" y="100" width="200" height="50" fill="#d98f6a"/>
+            <circle cx="100" cy="125" r="16" fill="none" stroke="#fff" stroke-width="2.4"/>
+            <line x1="0" y1="125" x2="84" y2="125" stroke="#fff" stroke-width="2.4"/>
+            <line x1="116" y1="125" x2="200" y2="125" stroke="#fff" stroke-width="2.4"/>
+            <!-- hoop -->
+            <line x1="170" y1="100" x2="170" y2="76" stroke="#5f5f6a" stroke-width="3.4"/>
+            <rect x="160" y="64" width="20" height="14" fill="#fff" stroke="#5f5f6a" stroke-width="2"/>
+            <line x1="162" y1="80" x2="178" y2="80" stroke="#e8697d" stroke-width="3"/>
+            <circle cx="140" cy="132" r="6" fill="#e07b3c"/><path d="M134 132 h12 M140 126 v12" stroke="#8a4a20" stroke-width="1.2"/>
+          </svg>
+          <figcaption>Choi Hung 🌈📸</figcaption>
+        </figure>
+        <figure class="polaroid r-l">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ขนมไข่และของฝาก">
+            <rect width="200" height="150" fill="#fbeaea"/>
+            <circle cx="100" cy="78" r="54" fill="#f6d8dc"/>
+            <!-- bubble waffle -->
+            <path d="M46 96 Q42 58 76 50 Q108 44 112 84 Q112 100 94 106 Q58 114 46 96" fill="#e8b04f"/>
+            <g fill="#f2c877">
+              <circle cx="62" cy="70" r="7"/><circle cx="80" cy="62" r="7"/><circle cx="97" cy="68" r="7"/>
+              <circle cx="58" cy="88" r="7"/><circle cx="76" cy="82" r="7"/><circle cx="94" cy="88" r="7"/>
+            </g>
+            <!-- cookie tin -->
+            <ellipse cx="146" cy="98" rx="30" ry="9" fill="#c9a2b8"/>
+            <rect x="116" y="70" width="60" height="28" rx="5" fill="#e0bcd2"/>
+            <ellipse cx="146" cy="70" rx="30" ry="9" fill="#eed3e2"/>
+            <circle cx="134" cy="84" r="5" fill="#a2673c"/><circle cx="150" cy="86" r="5" fill="#c98a52"/><circle cx="162" cy="82" r="5" fill="#a2673c"/>
+            <text x="146" y="62" font-size="9" text-anchor="middle" fill="#8a5a78" font-family="sans-serif">JENNY 🍪</text>
+            <text x="100" y="138" font-size="12" text-anchor="middle" fill="#b04038" font-family="sans-serif">🧇 bubble waffle + ของฝาก</text>
+          </svg>
+          <figcaption>ของฝากห้ามพลาด 🍪</figcaption>
+        </figure>
+        <figure class="polaroid r-r">
+          <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="เครื่องบินกลับกรุงเทพ">
+            <defs><linearGradient id="sky8" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#5d5488"/><stop offset="1" stop-color="#c98aa0"/></linearGradient></defs>
+            <rect width="200" height="150" fill="url(#sky8)"/>
+            <circle cx="40" cy="30" r="1.6" fill="#fff"/><circle cx="90" cy="18" r="1.3" fill="#fff"/><circle cx="150" cy="34" r="1.6" fill="#fff"/><circle cx="176" cy="16" r="1.2" fill="#fff"/>
+            <circle cx="160" cy="46" r="13" fill="#fdf3d0"/>
+            <ellipse cx="60" cy="66" rx="26" ry="9" fill="#fff" opacity=".85"/>
+            <ellipse cx="130" cy="90" rx="32" ry="10" fill="#fff" opacity=".7"/>
+            <!-- plane -->
+            <g transform="rotate(-10 90 70)">
+              <ellipse cx="90" cy="70" rx="38" ry="11" fill="#fff"/>
+              <polygon points="122,70 142,62 138,70" fill="#fff"/>
+              <polygon points="80,70 58,88 74,72" fill="#e8909f"/>
+              <polygon points="86,64 70,48 92,62" fill="#e8909f"/>
+              <circle cx="112" cy="67" r="3" fill="#9fc4d8"/><circle cx="102" cy="67" r="3" fill="#9fc4d8"/><circle cx="92" cy="67" r="3" fill="#9fc4d8"/>
+              <path d="M52 72 q-10 4 -18 2" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+            </g>
+            <text x="100" y="128" font-size="12" text-anchor="middle" fill="#fff" font-family="sans-serif">HKG ✈ BKK — see you again 💗</text>
+          </svg>
+          <figcaption>กลับบ้านแบบใจฟู 💗</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ═══════════ NOTE ═══════════ -->
+    <section class="note">
+      <h3>📝 โน้ตก่อนไป</h3>
+      <ul>
+        <li>💳 <b>Octopus Card</b> ใบเดียวจบ — รถไฟ MTR, รถราง, เรือ, ร้านสะดวกซื้อ</li>
+        <li>🛂 พาสปอร์ตไทยเข้าฮ่องกงได้ <b>30 วัน</b> ไม่ต้องขอวีซ่า</li>
+        <li>💰 แลก <b>HKD</b> ไปเลย เรทที่ไทยมักดีกว่า (1 HKD ≈ 4.6 บาท)</li>
+        <li>🔌 ปลั๊กแบบ <b>3 ขาเหลี่ยม (Type G)</b> อย่าลืมพก adapter!</li>
+        <li>🌤️ ต.ค. อากาศกำลังดี ~24–28°C ไม่ร้อนมาก เดินสบาย</li>
+        <li>📶 ซื้อซิม/eSIM ล่วงหน้าจากไทยถูกกว่าซื้อหน้างาน</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer>
+    <span class="script">have a nice trip ♡</span><br>
+    made with 💗 — Hong Kong Travel Plan 2026
+  </footer>
+</div>
+</body>
+</html>
