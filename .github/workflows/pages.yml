@@ -24,6 +24,8 @@ jobs:
           mkdir -p _site
           cp -r splitwise/web/* _site/
           cp -r splitwise/examples _site/examples
+          mkdir -p _site/set-rotation
+          cp set-rotation/index.html set-rotation/app.js _site/set-rotation/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

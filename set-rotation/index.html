@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SET Sector Rotation · แดชบอร์ดหมุนเวียนกลุ่มอุตสาหกรรม</title>
+<meta name="description" content="Relative Rotation Graph, rotation leaderboard, quadrant history and relative strength for SET industry groups and sectors." />
+<meta name="theme-color" content="#0d0d0d" />
+<meta name="color-scheme" content="dark light" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="format-detection" content="telephone=no" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%230d0d0d'/%3E%3Cpath d='M32 6v52M6 32h52' stroke='%23383835' stroke-width='2'/%3E%3Ccircle cx='45' cy='19' r='5' fill='%230ca30c'/%3E%3Ccircle cx='45' cy='45' r='4' fill='%23fab219'/%3E%3Ccircle cx='19' cy='45' r='4' fill='%23d03b3b'/%3E%3Ccircle cx='19' cy='19' r='4' fill='%233987e5'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" />
+<style>
+/* ───────────────────────────────────────────────────────────────
+   SET SECTOR ROTATION — instrument-panel aesthetic.
+   Chrome is monochrome on purpose: the only saturated colour on
+   the page is data. Chart colours come from a validated palette
+   (see README); quadrant state always ships colour + arrow + word.
+   ─────────────────────────────────────────────────────────────── */
+
+:root{
+  color-scheme: dark;
+
+  /* plane + surfaces */
+  --plane:#0d0d0d;
+  --surface-1:#1a1a19;
+  --surface-2:#232321;
+  --surface-sunk:#131312;
+
+  /* ink */
+  --text-primary:#ffffff;
+  --text-secondary:#c3c2b7;
+  --text-muted:#898781;
+
+  /* chart chrome */
+  --grid:#2c2c2a;
+  --axis:#383835;
+  --border:rgba(255,255,255,.10);
+  --border-strong:rgba(255,255,255,.18);
+
+  /* categorical series — dark steps */
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500;
+  --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+
+  /* quadrant state (never colour-alone: arrow glyph + word always) */
+  --q-lead:#0ca30c;
+  --q-weak:#fab219;
+  --q-lag:#d03b3b;
+  --q-improve:#3987e5;
+
+  --up:#0ca30c;
+  --down:#d03b3b;
+
+  --font-display:"Chakra Petch", "IBM Plex Sans Thai", system-ui, sans-serif;
+  --font-ui:"IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --r-lg:14px;
+  --r-md:10px;
+  --r-sm:7px;
+  --gap:18px;
+}
+
+:root[data-theme="light"]{
+  color-scheme: light;
+  --plane:#f2f1ec;
+  --surface-1:#fcfcfb;
+  --surface-2:#eceae3;
+  --surface-sunk:#f0efec;
+  --text-primary:#0b0b0b;
+  --text-secondary:#52514e;
+  --text-muted:#898781;
+  --grid:#e1e0d9;
+  --axis:#c3c2b7;
+  --border:rgba(11,11,11,.10);
+  --border-strong:rgba(11,11,11,.20);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+  --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+  --q-improve:#2a78d6;
+  --up:#006300;
+}
+
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]):not([data-theme="light"]){
+    color-scheme: light;
+    --plane:#f2f1ec;
+    --surface-1:#fcfcfb;
+    --surface-2:#eceae3;
+    --surface-sunk:#f0efec;
+    --text-primary:#0b0b0b;
+    --text-secondary:#52514e;
+    --text-muted:#898781;
+    --grid:#e1e0d9;
+    --axis:#c3c2b7;
+    --border:rgba(11,11,11,.10);
+    --border-strong:rgba(11,11,11,.20);
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+    --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7; --s8:#e34948;
+    --q-improve:#2a78d6;
+    --up:#006300;
+  }
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+
+body{
+  font-family:var(--font-ui);
+  background:var(--plane);
+  color:var(--text-primary);
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* fine instrument grain + vignette, kept far below the data */
+body::before{
+  content:"";
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size:64px 64px;
+  opacity:.28;
+  mask-image:radial-gradient(120% 80% at 50% 0%, #000 10%, transparent 78%);
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0%, #000 10%, transparent 78%);
+}
+
+.shell{position:relative; z-index:1; max-width:1440px; margin:0 auto;
+  padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+           max(48px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+
+/* ── header ───────────────────────────────────────────── */
+.masthead{
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:16px 24px;
+  padding:10px 2px 20px;
+  border-bottom:1px solid var(--border);
+}
+.brandmark{display:flex; align-items:center; gap:13px; min-width:0}
+.brandmark svg{flex:none}
+.brand-text h1{
+  font-family:var(--font-display);
+  font-weight:700; font-size:clamp(21px,3.3vw,31px);
+  letter-spacing:.055em; text-transform:uppercase;
+  margin:0; line-height:1.03;
+}
+.brand-text p{
+  margin:5px 0 0; color:var(--text-secondary); font-size:13px; letter-spacing:.01em;
+}
+.masthead-right{margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+
+.tagchip{
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--text-secondary);
+  border:1px solid var(--border); border-radius:999px;
+  padding:6px 11px; background:var(--surface-1);
+  white-space:nowrap;
+}
+.tagchip .pip{width:6px;height:6px;border-radius:50%;background:var(--text-muted);flex:none}
+.tagchip.is-demo .pip{background:var(--q-weak)}
+.tagchip.is-live .pip{background:var(--q-lead)}
+
+/* ── controls ─────────────────────────────────────────── */
+.controlbar{
+  display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 18px;
+  padding:16px 0 18px;
+  border-bottom:1px solid var(--border);
+}
+.control{display:flex; flex-direction:column; gap:6px; min-width:0}
+.control > .label{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--text-muted); white-space:nowrap;
+}
+.control-actions{margin-left:auto; display:flex; align-items:flex-end; gap:10px}
+
+.segbar{display:inline-flex; background:var(--surface-sunk); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:3px; gap:3px}
+.segbar button{
+  appearance:none; border:0; cursor:pointer; background:transparent;
+  font-family:var(--font-ui); font-size:12.5px; font-weight:500; color:var(--text-secondary);
+  padding:6px 12px; border-radius:5px; white-space:nowrap;
+  transition:background .14s ease, color .14s ease;
+}
+.segbar button:hover{background:var(--surface-2); color:var(--text-primary)}
+.segbar button[aria-pressed="true"]{background:var(--text-primary); color:var(--plane); font-weight:600}
+.segbar button:focus-visible{outline:2px solid var(--text-primary); outline-offset:2px}
+
+.btn{
+  appearance:none; cursor:pointer;
+  background:var(--surface-1); border:1px solid var(--border); color:var(--text-secondary);
+  font-family:var(--font-ui); font-size:12.5px; font-weight:500;
+  padding:8px 13px; border-radius:var(--r-sm); white-space:nowrap;
+  display:inline-flex; align-items:center; gap:7px;
+  transition:border-color .14s ease, color .14s ease, background .14s ease;
+}
+.btn:hover{border-color:var(--border-strong); color:var(--text-primary)}
+.btn:focus-visible{outline:2px solid var(--text-primary); outline-offset:2px}
+.btn[aria-pressed="true"]{background:var(--text-primary); color:var(--plane); border-color:var(--text-primary)}
+.btn .glyph{font-family:var(--font-mono); font-size:11px}
+
+/* scrubber */
+.scrub{flex:1 1 300px; min-width:220px}
+.scrub-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:2px}
+.scrub-date{font-family:var(--font-mono); font-size:15px; font-weight:500; color:var(--text-primary); letter-spacing:.02em}
+.scrub-meta{font-family:var(--font-mono); font-size:10.5px; color:var(--text-muted); letter-spacing:.06em}
+input[type="range"]{
+  -webkit-appearance:none; appearance:none; width:100%; height:22px;
+  background:transparent; cursor:pointer; display:block; margin:0;
+}
+input[type="range"]::-webkit-slider-runnable-track{height:3px; background:var(--axis); border-radius:2px}
+input[type="range"]::-moz-range-track{height:3px; background:var(--axis); border-radius:2px}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:15px; height:15px; margin-top:-6px;
+  border-radius:50%; background:var(--text-primary); border:3px solid var(--plane);
+  box-shadow:0 0 0 1px var(--border-strong);
+}
+input[type="range"]::-moz-range-thumb{
+  width:15px; height:15px; border-radius:50%; background:var(--text-primary);
+  border:3px solid var(--plane); box-shadow:0 0 0 1px var(--border-strong);
+}
+input[type="range"]:focus-visible{outline:2px solid var(--text-primary); outline-offset:4px; border-radius:4px}
+
+/* ── layout ───────────────────────────────────────────── */
+.grid{display:grid; gap:var(--gap); padding-top:var(--gap)}
+.row-hero{grid-template-columns:minmax(0,1.32fr) minmax(0,1fr)}
+@media (max-width:1080px){ .row-hero{grid-template-columns:minmax(0,1fr)} }
+
+.card{
+  background:var(--surface-1);
+  border:1px solid var(--border);
+  border-radius:var(--r-lg);
+  padding:16px 16px 14px;
+  min-width:0;
+  position:relative;
+}
+.card-head{display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px}
+.card-title{min-width:0}
+.card-title h2{
+  margin:0; font-family:var(--font-display); font-weight:600;
+  font-size:15px; letter-spacing:.075em; text-transform:uppercase; line-height:1.2;
+}
+.card-title p{margin:3px 0 0; font-size:12px; color:var(--text-muted); line-height:1.4}
+.card-tools{margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+
+/* ── RRG ──────────────────────────────────────────────── */
+.rrg-wrap{position:relative; width:100%}
+.rrg-wrap svg{display:block; width:100%; height:auto; touch-action:pan-y}
+.quad-legend{
+  display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px;
+  padding-top:11px; border-top:1px solid var(--border);
+}
+.qkey{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--text-secondary)}
+.qkey .arrow{font-family:var(--font-mono); font-size:13px; font-weight:600; line-height:1}
+.qkey .th{color:var(--text-muted); font-size:11.5px}
+
+/* ── leaderboard ──────────────────────────────────────── */
+.lb{display:flex; flex-direction:column; gap:1px}
+.lb-head, .lb-row{
+  display:grid;
+  grid-template-columns: 26px minmax(0,1fr) 104px 58px 58px;
+  align-items:center; gap:10px;
+}
+.lb-head{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-muted); padding:0 8px 8px; border-bottom:1px solid var(--border); margin-bottom:5px;
+  white-space:nowrap;
+}
+.lb-head .num, .lb-row .num{text-align:right}
+.lb-head .abbr{display:none}
+.lb-row{
+  padding:8px; border-radius:var(--r-sm); cursor:pointer; border:1px solid transparent;
+  background:transparent; width:100%; text-align:left; font:inherit; color:inherit;
+  transition:background .12s ease, border-color .12s ease;
+}
+.lb-row:hover{background:var(--surface-2)}
+.lb-row:focus-visible{outline:2px solid var(--text-primary); outline-offset:-2px}
+.lb-row.is-focus{background:var(--surface-2); border-color:var(--border-strong)}
+.lb-rank{font-family:var(--font-mono); font-size:11px; color:var(--text-muted); text-align:right}
+.lb-name{min-width:0}
+.lb-code{display:block; font-family:var(--font-mono); font-size:13px; font-weight:600; letter-spacing:.03em; line-height:1.25}
+.lb-sub{display:block; font-size:11px; color:var(--text-muted); line-height:1.3;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lb-num{font-family:var(--font-mono); font-size:13px; text-align:right; font-variant-numeric:tabular-nums}
+/* the delta line always occupies its row so values stay aligned when a
+   period has no computable change (the very first valid bar) */
+.lb-num .delta{display:block; font-size:10px; color:var(--text-muted); margin-top:1px; min-height:13px}
+.lb-num .delta.up{color:var(--up)}
+.lb-num .delta.down{color:var(--down)}
+
+/* leaderboard footer: how the market is spread across the four quadrants */
+.card-col{display:flex; flex-direction:column}
+.lb-foot{margin-top:auto; padding-top:15px; border-top:1px solid var(--border)}
+.lb-foot .cap{display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--text-muted); margin-bottom:10px}
+.breadth{display:flex; gap:2px; height:8px; margin-bottom:13px}
+.breadth span{min-width:2px; border-radius:2px}
+.breadth span:first-child{border-radius:4px 2px 2px 4px}
+.breadth span:last-child{border-radius:2px 4px 4px 2px}
+.tally{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px 12px}
+.tally .cell{min-width:0}
+.tally .top{display:flex; align-items:baseline; gap:6px}
+.tally .arrow{font-family:var(--font-mono); font-weight:600; font-size:13px; line-height:1}
+.tally .n{font-family:var(--font-mono); font-size:19px; font-weight:600; color:var(--text-primary); line-height:1}
+.tally .nm{display:block; font-size:11px; color:var(--text-muted); margin-top:4px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+@media (max-width:640px){ .tally{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+.qtag{display:inline-flex; align-items:center; gap:6px; min-width:0}
+.qtag .arrow{font-family:var(--font-mono); font-weight:600; font-size:13px; line-height:1; flex:none}
+.qtag .word{font-size:11.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+/* ── relative strength lines ──────────────────────────── */
+.rs-wrap{position:relative}
+.rs-wrap svg{display:block; width:100%; height:auto; touch-action:pan-y}
+.legend{display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; padding-top:11px; border-top:1px solid var(--border)}
+.legend button{
+  appearance:none; cursor:pointer; background:var(--surface-sunk);
+  border:1px solid var(--border); border-radius:999px;
+  padding:5px 11px 5px 8px; display:inline-flex; align-items:center; gap:7px;
+  font-family:var(--font-ui); font-size:12px; color:var(--text-muted);
+  transition:color .12s ease, border-color .12s ease, background .12s ease;
+}
+.legend button:hover{border-color:var(--border-strong)}
+.legend button:focus-visible{outline:2px solid var(--text-primary); outline-offset:2px}
+.legend button[aria-pressed="true"]{color:var(--text-primary); background:var(--surface-2); border-color:var(--border-strong)}
+.legend .key{width:15px; height:2px; border-radius:2px; background:currentColor; flex:none; opacity:.35}
+.legend button[aria-pressed="true"] .key{opacity:1}
+.legend .code{font-family:var(--font-mono); font-size:11.5px; font-weight:500; letter-spacing:.03em}
+
+/* ── quadrant history ─────────────────────────────────── */
+.qh-scroll{overflow-x:auto; overflow-y:hidden; padding-bottom:4px}
+.qh-scroll svg{display:block; height:auto}
+
+/* ── data table ───────────────────────────────────────── */
+.table-scroll{overflow-x:auto}
+table.data{width:100%; border-collapse:collapse; font-size:13px; min-width:660px}
+table.data th, table.data td{padding:9px 10px; text-align:right; white-space:nowrap}
+table.data th:first-child, table.data td:first-child,
+table.data th:nth-child(2), table.data td:nth-child(2){text-align:left}
+table.data thead th{
+  font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-muted); font-weight:400; border-bottom:1px solid var(--border);
+  position:sticky; top:0; background:var(--surface-1);
+}
+table.data thead th button{
+  appearance:none; background:none; border:0; cursor:pointer; padding:0; font:inherit;
+  color:inherit; letter-spacing:inherit; text-transform:inherit; display:inline-flex; gap:5px; align-items:center;
+}
+table.data thead th button:hover{color:var(--text-primary)}
+table.data thead th button:focus-visible{outline:2px solid var(--text-primary); outline-offset:2px}
+table.data tbody tr{border-bottom:1px solid var(--border)}
+table.data tbody tr:last-child{border-bottom:0}
+table.data tbody tr:hover{background:var(--surface-2)}
+table.data td.n{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
+table.data td .th-name{display:block; font-size:11px; color:var(--text-muted)}
+table.data td .code{font-family:var(--font-mono); font-weight:600; letter-spacing:.03em}
+
+/* ── tooltip ──────────────────────────────────────────── */
+.tip{
+  position:fixed; z-index:60; pointer-events:none; opacity:0;
+  transform:translate3d(0,0,0);
+  background:var(--surface-1); border:1px solid var(--border-strong);
+  border-radius:var(--r-md); padding:10px 12px; min-width:150px; max-width:280px;
+  box-shadow:0 18px 44px -18px rgba(0,0,0,.7), 0 3px 10px -4px rgba(0,0,0,.45);
+  transition:opacity .1s ease;
+}
+.tip.on{opacity:1}
+.tip-head{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:7px;
+  padding-bottom:7px; border-bottom:1px solid var(--border)}
+.tip-code{font-family:var(--font-mono); font-size:13px; font-weight:600; letter-spacing:.03em}
+.tip-th{font-size:11px; color:var(--text-muted)}
+.tip-row{display:flex; align-items:center; gap:9px; margin-top:4px}
+.tip-row .key{width:12px; height:2px; border-radius:2px; flex:none}
+.tip-row .k{font-size:11.5px; color:var(--text-secondary); margin-right:auto}
+.tip-row .v{font-family:var(--font-mono); font-size:13px; font-weight:500; color:var(--text-primary);
+  font-variant-numeric:tabular-nums}
+
+/* ── notes / footer ───────────────────────────────────── */
+.note{
+  display:flex; gap:12px; align-items:flex-start;
+  border:1px solid var(--border); border-left:2px solid var(--q-weak);
+  background:var(--surface-1); border-radius:var(--r-md);
+  padding:13px 15px; font-size:12.5px; color:var(--text-secondary); line-height:1.6;
+}
+.note strong{color:var(--text-primary); font-weight:600}
+.note .mark{font-family:var(--font-mono); font-size:14px; color:var(--q-weak); line-height:1.3; flex:none}
+
+.glossary{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:14px 22px}
+.glossary dt{font-family:var(--font-mono); font-size:11.5px; letter-spacing:.05em;
+  color:var(--text-primary); font-weight:500; margin-bottom:3px}
+.glossary dd{margin:0 0 2px; font-size:12.5px; color:var(--text-secondary); line-height:1.55}
+.glossary dd .th{display:block; color:var(--text-muted); font-size:12px}
+
+footer.foot{
+  margin-top:28px; padding-top:18px; border-top:1px solid var(--border);
+  display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center;
+  font-size:12px; color:var(--text-muted);
+}
+footer.foot a{color:var(--text-secondary)}
+
+.sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0 0 0 0); white-space:nowrap; border:0}
+
+.hidden{display:none !important}
+
+/* file input lives behind a styled button */
+#csvInput{position:absolute; width:1px; height:1px; opacity:0; pointer-events:none}
+
+@media (max-width:640px){
+  .lb-head, .lb-row{grid-template-columns:22px minmax(0,1fr) 26px 56px; gap:8px}
+  .lb-head{font-size:9.5px; letter-spacing:.06em}
+  .lb-head .full{display:none}
+  .lb-head .abbr{display:inline}
+  .lb-col-mom{display:none}
+  .qtag .word{display:none}
+  .card{padding:14px 13px 12px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important; transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="masthead">
+    <div class="brandmark">
+      <svg width="42" height="42" viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="1" y="1" width="62" height="62" rx="13" fill="none" stroke="var(--border-strong)"/>
+        <path d="M32 8v48M8 32h48" stroke="var(--axis)" stroke-width="1.5"/>
+        <circle cx="45" cy="19" r="5" fill="var(--q-lead)"/>
+        <circle cx="45" cy="45" r="4" fill="var(--q-weak)"/>
+        <circle cx="19" cy="45" r="4" fill="var(--q-lag)"/>
+        <circle cx="19" cy="19" r="4" fill="var(--q-improve)"/>
+      </svg>
+      <div class="brand-text">
+        <h1>SET Sector Rotation</h1>
+        <p>แดชบอร์ดติดตามการหมุนเวียนของกลุ่มอุตสาหกรรม · เทียบกับ <span id="benchName">SET Index</span></p>
+      </div>
+    </div>
+    <div class="masthead-right">
+      <span class="tagchip is-demo" id="sourceChip"><span class="pip"></span><span id="sourceLabel">Demo data</span></span>
+      <button class="btn" id="themeBtn" type="button" title="สลับธีมสว่าง/มืด">
+        <span class="glyph" id="themeGlyph" aria-hidden="true">◐</span><span id="themeLabel">Theme</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- One filter row, above everything it scopes. -->
+  <div class="controlbar" role="group" aria-label="Dashboard filters">
+    <div class="control">
+      <span class="label" id="lblUniverse">Universe · กลุ่ม</span>
+      <div class="segbar" role="group" aria-labelledby="lblUniverse" id="universeSeg">
+        <button type="button" data-universe="industry" aria-pressed="true">8 หมวดใหญ่</button>
+        <button type="button" data-universe="sector" aria-pressed="false">รายเซกเตอร์</button>
+      </div>
+    </div>
+
+    <div class="control">
+      <span class="label" id="lblTf">Timeframe</span>
+      <div class="segbar" role="group" aria-labelledby="lblTf" id="tfSeg">
+        <button type="button" data-tf="D" aria-pressed="true">Daily</button>
+        <button type="button" data-tf="W" aria-pressed="false">Weekly</button>
+      </div>
+    </div>
+
+    <div class="control">
+      <span class="label" id="lblTail">Tail · หาง</span>
+      <div class="segbar" role="group" aria-labelledby="lblTail" id="tailSeg">
+        <button type="button" data-tail="4" aria-pressed="false">4</button>
+        <button type="button" data-tail="8" aria-pressed="true">8</button>
+        <button type="button" data-tail="16" aria-pressed="false">16</button>
+      </div>
+    </div>
+
+    <div class="control scrub">
+      <div class="scrub-head">
+        <span class="scrub-date" id="scrubDate">—</span>
+        <span class="scrub-meta" id="scrubMeta"></span>
+      </div>
+      <input type="range" id="scrub" min="0" max="1" value="1" step="1"
+             aria-label="เลื่อนวันที่ / Date position" />
+    </div>
+
+    <div class="control-actions">
+      <button class="btn" id="playBtn" type="button" aria-pressed="false">
+        <span class="glyph" id="playGlyph" aria-hidden="true">▶</span><span id="playLabel">Play</span>
+      </button>
+      <button class="btn" id="csvBtn" type="button" title="อัปโหลดราคาปิดจริงเป็น CSV">
+        <span class="glyph" aria-hidden="true">↥</span>CSV
+      </button>
+      <input type="file" id="csvInput" accept=".csv,text/csv" />
+      <button class="btn hidden" id="resetBtn" type="button">Demo</button>
+    </div>
+  </div>
+
+  <main class="grid">
+
+    <div class="note hidden" id="insufficient"></div>
+
+    <div class="grid" id="dashboard" style="padding-top:0">
+
+    <!-- HERO: RRG + leaderboard -->
+    <section class="grid row-hero" style="padding-top:0">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">
+            <h2>Relative Rotation Graph</h2>
+            <p>แกนนอน = ความแข็งแกร่งเชิงเปรียบเทียบ · แกนตั้ง = โมเมนตัมของความแข็งแกร่งนั้น · จุดตัดที่ 100 คือค่าเฉลี่ยตลาด</p>
+          </div>
+          <div class="card-tools">
+            <button class="btn" id="clearFocusBtn" type="button">ดูทุกกลุ่ม</button>
+          </div>
+        </div>
+        <div class="rrg-wrap" id="rrgWrap"></div>
+        <div class="quad-legend" id="quadLegend"></div>
+      </div>
+
+      <div class="card card-col">
+        <div class="card-head">
+          <div class="card-title">
+            <h2>Rotation Leaderboard</h2>
+            <p>เรียงตามความแข็งแกร่งเชิงเปรียบเทียบ ณ วันที่เลือก · แตะแถวเพื่อไฮไลต์ในกราฟ</p>
+          </div>
+        </div>
+        <div class="lb" id="leaderboard" role="list"></div>
+        <div class="lb-foot" id="lbFoot"></div>
+      </div>
+    </section>
+
+    <!-- Relative strength lines -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h2>Relative Strength vs <span id="rsBench">SET</span></h2>
+          <p>เส้นราคาเทียบดัชนีอ้างอิง ปรับฐาน = 100 ที่จุดเริ่มหน้าต่าง · เส้นขึ้น = ทำผลงานชนะตลาด</p>
+        </div>
+        <div class="card-tools">
+          <div class="segbar" role="group" aria-label="Window length" id="winSeg">
+            <button type="button" data-win="60" aria-pressed="false">60</button>
+            <button type="button" data-win="120" aria-pressed="true">120</button>
+            <button type="button" data-win="0" aria-pressed="false">All</button>
+          </div>
+        </div>
+      </div>
+      <div class="rs-wrap" id="rsWrap"></div>
+      <div class="legend" id="rsLegend"></div>
+    </section>
+
+    <!-- Quadrant history -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h2>Quadrant History</h2>
+          <p>ย้อนดูตำแหน่งควอดแรนต์ของแต่ละกลุ่มในแต่ละช่วงเวลา · ลูกศรบอกควอดแรนต์โดยไม่ต้องพึ่งสี</p>
+        </div>
+        <div class="card-tools">
+          <button class="btn" id="qhModeBtn" type="button" aria-pressed="false">Table view</button>
+        </div>
+      </div>
+      <div class="qh-scroll" id="qhWrap"></div>
+      <div class="table-scroll hidden" id="qhTableWrap"></div>
+    </section>
+
+    <!-- Data table (the WCAG-clean twin for every value on screen) -->
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h2>Data table · ตารางข้อมูล</h2>
+          <p>ค่าทั้งหมด ณ วันที่ที่เลือก · คลิกหัวคอลัมน์เพื่อเรียงลำดับ</p>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="data" id="dataTable">
+          <caption class="sr-only">ค่า RS-Ratio, RS-Momentum, ควอดแรนต์ และผลตอบแทนเชิงเปรียบเทียบของแต่ละกลุ่ม ณ วันที่ที่เลือก</caption>
+        </table>
+      </div>
+    </section>
+
+    </div><!-- /#dashboard -->
+
+    <div class="note">
+      <span class="mark" aria-hidden="true">!</span>
+      <div>
+        <strong>RRG สะท้อนการเคลื่อนไหวของราคาและโมเมนตัมเชิงเปรียบเทียบ ไม่ใช่ข้อมูล Fund Flow</strong>
+        หรือกระแสเงินไหลเข้าสุทธิโดยตรง ควรใช้ร่วมกับปัจจัยพื้นฐาน ภาวะตลาด และการบริหารความเสี่ยง —
+        this dashboard measures relative price and momentum, not net fund flow, and is not investment advice.
+        <span id="demoNote">ตัวเลขที่แสดงอยู่ขณะนี้เป็น<strong>ข้อมูลตัวอย่างที่จำลองขึ้น</strong> (deterministic demo series)
+        เพื่อสาธิตการทำงาน — กดปุ่ม CSV เพื่อใส่ราคาปิดจริงของคุณเอง</span>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title"><h2>How to read it · อ่านอย่างไร</h2></div>
+      </div>
+      <dl class="glossary">
+        <div>
+          <dt>RS-Ratio</dt>
+          <dd>ความแข็งแกร่งของกลุ่มเทียบตลาด ปรับให้ค่ากลาง = 100
+            <span class="th">Above 100 = outperforming the benchmark trend.</span></dd>
+        </div>
+        <div>
+          <dt>RS-Momentum</dt>
+          <dd>อัตราการเปลี่ยนแปลงของ RS-Ratio — บอกว่าความแข็งแกร่งกำลังเร่งขึ้นหรือชะลอลง
+            <span class="th">Above 100 = that strength is still accelerating.</span></dd>
+        </div>
+        <div>
+          <dt>↗ Leading · นำตลาด</dt>
+          <dd>แข็งแกร่งกว่าตลาดและยังมีโมเมนตัมหนุน
+            <span class="th">Strong and still gaining.</span></dd>
+        </div>
+        <div>
+          <dt>↘ Weakening · อ่อนแรง</dt>
+          <dd>ยังแข็งแกร่งกว่าตลาด แต่โมเมนตัมเริ่มแผ่ว มักเป็นจุดเริ่มของการหมุนออก
+            <span class="th">Still strong, losing momentum.</span></dd>
+        </div>
+        <div>
+          <dt>↙ Lagging · ล้าหลัง</dt>
+          <dd>อ่อนแอกว่าตลาดและโมเมนตัมยังลบ
+            <span class="th">Weak and still falling behind.</span></dd>
+        </div>
+        <div>
+          <dt>↖ Improving · ฟื้นตัว</dt>
+          <dd>ยังอ่อนแอกว่าตลาด แต่โมเมนตัมกลับมาเป็นบวก มักเป็นจุดเริ่มของการหมุนเข้า
+            <span class="th">Weak but turning up.</span></dd>
+        </div>
+        <div>
+          <dt>Rotation · การหมุน</dt>
+          <dd>ตามทฤษฎี กลุ่มมักหมุนตามเข็มนาฬิกา ฟื้นตัว → นำตลาด → อ่อนแรง → ล้าหลัง
+            <span class="th">Rotation is typically clockwise, but not guaranteed.</span></dd>
+        </div>
+        <div>
+          <dt>Tail · หาง</dt>
+          <dd>เส้นหางคือเส้นทางของกลุ่มในช่วงก่อนหน้า ยิ่งหางยาวและตรง ยิ่งเป็นแนวโน้มที่ชัด
+            <span class="th">Longer, straighter tails = a more persistent move.</span></dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <div class="card-title">
+          <h2>ใช้ข้อมูลจริงของคุณ · Bring your own data</h2>
+          <p>ไม่มีการเรียก API ภายนอก — ทุกอย่างคำนวณในเบราว์เซอร์</p>
+        </div>
+      </div>
+      <p style="margin:0 0 10px; font-size:13px; color:var(--text-secondary); line-height:1.6">
+        กดปุ่ม <strong>CSV</strong> แล้วเลือกไฟล์ราคาปิดรูปแบบกว้าง (wide format): คอลัมน์แรกเป็นวันที่
+        คอลัมน์ที่สองเป็นดัชนีอ้างอิง และคอลัมน์ถัดไปคือแต่ละกลุ่ม —
+        the second column is treated as the benchmark.
+      </p>
+      <pre style="margin:0; overflow-x:auto; background:var(--surface-sunk); border:1px solid var(--border);
+                  border-radius:var(--r-sm); padding:12px 14px; font-family:var(--font-mono);
+                  font-size:12px; color:var(--text-secondary); line-height:1.6">date,SET,BANK,ENERG,ICT,FOOD
+2025-01-02,1385.21,412.90,22140.5,178.33,11902.7
+2025-01-03,1379.88,410.12,22088.1,179.90,11888.4
+…</pre>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <span>SET Sector Rotation · แดชบอร์ดตัวอย่างเพื่อการศึกษา</span>
+    <span style="margin-left:auto">ไม่ใช่คำแนะนำการลงทุน · Not investment advice</span>
+  </footer>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
