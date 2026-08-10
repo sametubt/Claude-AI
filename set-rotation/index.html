@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>SET Sector Rotation · แดชบอร์ดหมุนเวียนกลุ่มอุตสาหกรรม</title>
+<title>SET Sector Rotation · Industry Group Rotation Dashboard</title>
 <meta name="description" content="Relative Rotation Graph, rotation leaderboard, quadrant history and relative strength for SET industry groups and sectors." />
 <meta name="theme-color" content="#0d0d0d" />
 <meta name="color-scheme" content="dark light" />
@@ -13,7 +13,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%230d0d0d'/%3E%3Cpath d='M32 6v52M6 32h52' stroke='%23383835' stroke-width='2'/%3E%3Ccircle cx='45' cy='19' r='5' fill='%230ca30c'/%3E%3Ccircle cx='45' cy='45' r='4' fill='%23fab219'/%3E%3Ccircle cx='19' cy='45' r='4' fill='%23d03b3b'/%3E%3Ccircle cx='19' cy='19' r='4' fill='%233987e5'/%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" />
 <style>
 /* ───────────────────────────────────────────────────────────────
    SET SECTOR ROTATION — instrument-panel aesthetic.
@@ -55,8 +55,8 @@
   --up:#0ca30c;
   --down:#d03b3b;
 
-  --font-display:"Chakra Petch", "IBM Plex Sans Thai", system-ui, sans-serif;
-  --font-ui:"IBM Plex Sans Thai", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display:"Chakra Petch", "IBM Plex Sans", system-ui, sans-serif;
+  --font-ui:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --r-lg:14px;
@@ -259,7 +259,6 @@ input[type="range"]:focus-visible{outline:2px solid var(--text-primary); outline
 }
 .qkey{display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--text-secondary)}
 .qkey .arrow{font-family:var(--font-mono); font-size:13px; font-weight:600; line-height:1}
-.qkey .th{color:var(--text-muted); font-size:11.5px}
 
 /* ── leaderboard ──────────────────────────────────────── */
 .lb{display:flex; flex-direction:column; gap:1px}
@@ -360,7 +359,7 @@ table.data tbody tr{border-bottom:1px solid var(--border)}
 table.data tbody tr:last-child{border-bottom:0}
 table.data tbody tr:hover{background:var(--surface-2)}
 table.data td.n{font-family:var(--font-mono); font-variant-numeric:tabular-nums}
-table.data td .th-name{display:block; font-size:11px; color:var(--text-muted)}
+table.data td .sub-name{display:block; font-size:11px; color:var(--text-muted)}
 table.data td .code{font-family:var(--font-mono); font-weight:600; letter-spacing:.03em}
 
 /* ── tooltip ──────────────────────────────────────────── */
@@ -397,7 +396,6 @@ table.data td .code{font-family:var(--font-mono); font-weight:600; letter-spacin
 .glossary dt{font-family:var(--font-mono); font-size:11.5px; letter-spacing:.05em;
   color:var(--text-primary); font-weight:500; margin-bottom:3px}
 .glossary dd{margin:0 0 2px; font-size:12.5px; color:var(--text-secondary); line-height:1.55}
-.glossary dd .th{display:block; color:var(--text-muted); font-size:12px}
 
 footer.foot{
   margin-top:28px; padding-top:18px; border-top:1px solid var(--border);
@@ -444,12 +442,12 @@ footer.foot a{color:var(--text-secondary)}
       </svg>
       <div class="brand-text">
         <h1>SET Sector Rotation</h1>
-        <p>แดชบอร์ดติดตามการหมุนเวียนของกลุ่มอุตสาหกรรม · เทียบกับ <span id="benchName">SET Index</span></p>
+        <p>Tracking how industry groups rotate, measured against <span id="benchName">SET Index</span></p>
       </div>
     </div>
     <div class="masthead-right">
       <span class="tagchip is-demo" id="sourceChip"><span class="pip"></span><span id="sourceLabel">Demo data</span></span>
-      <button class="btn" id="themeBtn" type="button" title="สลับธีมสว่าง/มืด">
+      <button class="btn" id="themeBtn" type="button" title="Switch between light and dark">
         <span class="glyph" id="themeGlyph" aria-hidden="true">◐</span><span id="themeLabel">Theme</span>
       </button>
     </div>
@@ -458,10 +456,10 @@ footer.foot a{color:var(--text-secondary)}
   <!-- One filter row, above everything it scopes. -->
   <div class="controlbar" role="group" aria-label="Dashboard filters">
     <div class="control">
-      <span class="label" id="lblUniverse">Universe · กลุ่ม</span>
+      <span class="label" id="lblUniverse">Universe</span>
       <div class="segbar" role="group" aria-labelledby="lblUniverse" id="universeSeg">
-        <button type="button" data-universe="industry" aria-pressed="true">8 หมวดใหญ่</button>
-        <button type="button" data-universe="sector" aria-pressed="false">รายเซกเตอร์</button>
+        <button type="button" data-universe="industry" aria-pressed="true">Industry groups</button>
+        <button type="button" data-universe="sector" aria-pressed="false">Sectors</button>
       </div>
     </div>
 
@@ -474,7 +472,7 @@ footer.foot a{color:var(--text-secondary)}
     </div>
 
     <div class="control">
-      <span class="label" id="lblTail">Tail · หาง</span>
+      <span class="label" id="lblTail">Tail</span>
       <div class="segbar" role="group" aria-labelledby="lblTail" id="tailSeg">
         <button type="button" data-tail="4" aria-pressed="false">4</button>
         <button type="button" data-tail="8" aria-pressed="true">8</button>
@@ -488,14 +486,14 @@ footer.foot a{color:var(--text-secondary)}
         <span class="scrub-meta" id="scrubMeta"></span>
       </div>
       <input type="range" id="scrub" min="0" max="1" value="1" step="1"
-             aria-label="เลื่อนวันที่ / Date position" />
+             aria-label="Date position" />
     </div>
 
     <div class="control-actions">
       <button class="btn" id="playBtn" type="button" aria-pressed="false">
         <span class="glyph" id="playGlyph" aria-hidden="true">▶</span><span id="playLabel">Play</span>
       </button>
-      <button class="btn" id="csvBtn" type="button" title="อัปโหลดราคาปิดจริงเป็น CSV">
+      <button class="btn" id="csvBtn" type="button" title="Load real closing prices from a CSV">
         <span class="glyph" aria-hidden="true">↥</span>CSV
       </button>
       <input type="file" id="csvInput" accept=".csv,text/csv" />
@@ -515,10 +513,10 @@ footer.foot a{color:var(--text-secondary)}
         <div class="card-head">
           <div class="card-title">
             <h2>Relative Rotation Graph</h2>
-            <p>แกนนอน = ความแข็งแกร่งเชิงเปรียบเทียบ · แกนตั้ง = โมเมนตัมของความแข็งแกร่งนั้น · จุดตัดที่ 100 คือค่าเฉลี่ยตลาด</p>
+            <p>Horizontal = relative strength · vertical = the momentum of that strength · the crosshair at 100 is the benchmark itself</p>
           </div>
           <div class="card-tools">
-            <button class="btn" id="clearFocusBtn" type="button">ดูทุกกลุ่ม</button>
+            <button class="btn" id="clearFocusBtn" type="button">Show all</button>
           </div>
         </div>
         <div class="rrg-wrap" id="rrgWrap"></div>
@@ -529,7 +527,7 @@ footer.foot a{color:var(--text-secondary)}
         <div class="card-head">
           <div class="card-title">
             <h2>Rotation Leaderboard</h2>
-            <p>เรียงตามความแข็งแกร่งเชิงเปรียบเทียบ ณ วันที่เลือก · แตะแถวเพื่อไฮไลต์ในกราฟ</p>
+            <p>Ranked by relative strength at the selected date · select a row to highlight it on the graph</p>
           </div>
         </div>
         <div class="lb" id="leaderboard" role="list"></div>
@@ -542,7 +540,7 @@ footer.foot a{color:var(--text-secondary)}
       <div class="card-head">
         <div class="card-title">
           <h2>Relative Strength vs <span id="rsBench">SET</span></h2>
-          <p>เส้นราคาเทียบดัชนีอ้างอิง ปรับฐาน = 100 ที่จุดเริ่มหน้าต่าง · เส้นขึ้น = ทำผลงานชนะตลาด</p>
+          <p>Each group's price against the benchmark, rebased to 100 at the start of the window · a rising line beats the market</p>
         </div>
         <div class="card-tools">
           <div class="segbar" role="group" aria-label="Window length" id="winSeg">
@@ -561,7 +559,7 @@ footer.foot a{color:var(--text-secondary)}
       <div class="card-head">
         <div class="card-title">
           <h2>Quadrant History</h2>
-          <p>ย้อนดูตำแหน่งควอดแรนต์ของแต่ละกลุ่มในแต่ละช่วงเวลา · ลูกศรบอกควอดแรนต์โดยไม่ต้องพึ่งสี</p>
+          <p>Each group's quadrant over time · the arrow names the quadrant without relying on colour</p>
         </div>
         <div class="card-tools">
           <button class="btn" id="qhModeBtn" type="button" aria-pressed="false">Table view</button>
@@ -575,13 +573,13 @@ footer.foot a{color:var(--text-secondary)}
     <section class="card">
       <div class="card-head">
         <div class="card-title">
-          <h2>Data table · ตารางข้อมูล</h2>
-          <p>ค่าทั้งหมด ณ วันที่ที่เลือก · คลิกหัวคอลัมน์เพื่อเรียงลำดับ</p>
+          <h2>Data table</h2>
+          <p>Every value at the selected date · click a column header to sort</p>
         </div>
       </div>
       <div class="table-scroll">
         <table class="data" id="dataTable">
-          <caption class="sr-only">ค่า RS-Ratio, RS-Momentum, ควอดแรนต์ และผลตอบแทนเชิงเปรียบเทียบของแต่ละกลุ่ม ณ วันที่ที่เลือก</caption>
+          <caption class="sr-only">RS-Ratio, RS-Momentum, quadrant and relative return for each group at the selected date.</caption>
         </table>
       </div>
     </section>
@@ -591,58 +589,55 @@ footer.foot a{color:var(--text-secondary)}
     <div class="note">
       <span class="mark" aria-hidden="true">!</span>
       <div>
-        <strong>RRG สะท้อนการเคลื่อนไหวของราคาและโมเมนตัมเชิงเปรียบเทียบ ไม่ใช่ข้อมูล Fund Flow</strong>
-        หรือกระแสเงินไหลเข้าสุทธิโดยตรง ควรใช้ร่วมกับปัจจัยพื้นฐาน ภาวะตลาด และการบริหารความเสี่ยง —
-        this dashboard measures relative price and momentum, not net fund flow, and is not investment advice.
-        <span id="demoNote">ตัวเลขที่แสดงอยู่ขณะนี้เป็น<strong>ข้อมูลตัวอย่างที่จำลองขึ้น</strong> (deterministic demo series)
-        เพื่อสาธิตการทำงาน — กดปุ่ม CSV เพื่อใส่ราคาปิดจริงของคุณเอง</span>
+        <strong>An RRG reflects relative price and momentum — not fund flow.</strong>
+        It says nothing about net money moving into or out of a group. Use it alongside fundamentals,
+        market conditions and your own risk management. This is not investment advice.
+        <span id="demoNote">The numbers on screen right now are a <strong>synthetic demo series</strong>,
+        generated from a fixed seed to show how the dashboard behaves — they are not real market data.
+        Use the CSV button to load your own closing prices.</span>
       </div>
     </div>
 
     <section class="card">
       <div class="card-head">
-        <div class="card-title"><h2>How to read it · อ่านอย่างไร</h2></div>
+        <div class="card-title"><h2>How to read it</h2></div>
       </div>
       <dl class="glossary">
         <div>
           <dt>RS-Ratio</dt>
-          <dd>ความแข็งแกร่งของกลุ่มเทียบตลาด ปรับให้ค่ากลาง = 100
-            <span class="th">Above 100 = outperforming the benchmark trend.</span></dd>
+          <dd>How strong a group is against the benchmark, normalised so that 100 is the market.
+            Above 100 means it is outperforming the benchmark trend.</dd>
         </div>
         <div>
           <dt>RS-Momentum</dt>
-          <dd>อัตราการเปลี่ยนแปลงของ RS-Ratio — บอกว่าความแข็งแกร่งกำลังเร่งขึ้นหรือชะลอลง
-            <span class="th">Above 100 = that strength is still accelerating.</span></dd>
+          <dd>The rate of change of RS-Ratio — whether that strength is still building or fading.
+            Above 100 means it is still accelerating.</dd>
         </div>
         <div>
-          <dt>↗ Leading · นำตลาด</dt>
-          <dd>แข็งแกร่งกว่าตลาดและยังมีโมเมนตัมหนุน
-            <span class="th">Strong and still gaining.</span></dd>
+          <dt>↗ Leading</dt>
+          <dd>Stronger than the market, with momentum still behind it.</dd>
         </div>
         <div>
-          <dt>↘ Weakening · อ่อนแรง</dt>
-          <dd>ยังแข็งแกร่งกว่าตลาด แต่โมเมนตัมเริ่มแผ่ว มักเป็นจุดเริ่มของการหมุนออก
-            <span class="th">Still strong, losing momentum.</span></dd>
+          <dt>↘ Weakening</dt>
+          <dd>Still stronger than the market, but momentum is fading — often where a rotation out begins.</dd>
         </div>
         <div>
-          <dt>↙ Lagging · ล้าหลัง</dt>
-          <dd>อ่อนแอกว่าตลาดและโมเมนตัมยังลบ
-            <span class="th">Weak and still falling behind.</span></dd>
+          <dt>↙ Lagging</dt>
+          <dd>Weaker than the market, with momentum still negative.</dd>
         </div>
         <div>
-          <dt>↖ Improving · ฟื้นตัว</dt>
-          <dd>ยังอ่อนแอกว่าตลาด แต่โมเมนตัมกลับมาเป็นบวก มักเป็นจุดเริ่มของการหมุนเข้า
-            <span class="th">Weak but turning up.</span></dd>
+          <dt>↖ Improving</dt>
+          <dd>Still weaker than the market, but momentum has turned positive — often where a rotation in begins.</dd>
         </div>
         <div>
-          <dt>Rotation · การหมุน</dt>
-          <dd>ตามทฤษฎี กลุ่มมักหมุนตามเข็มนาฬิกา ฟื้นตัว → นำตลาด → อ่อนแรง → ล้าหลัง
-            <span class="th">Rotation is typically clockwise, but not guaranteed.</span></dd>
+          <dt>Rotation</dt>
+          <dd>Groups tend to travel clockwise: Improving → Leading → Weakening → Lagging.
+            That is a tendency, not a rule.</dd>
         </div>
         <div>
-          <dt>Tail · หาง</dt>
-          <dd>เส้นหางคือเส้นทางของกลุ่มในช่วงก่อนหน้า ยิ่งหางยาวและตรง ยิ่งเป็นแนวโน้มที่ชัด
-            <span class="th">Longer, straighter tails = a more persistent move.</span></dd>
+          <dt>Tail</dt>
+          <dd>The path a group took over the preceding periods.
+            Longer, straighter tails mean a more persistent move.</dd>
         </div>
       </dl>
     </section>
@@ -650,14 +645,14 @@ footer.foot a{color:var(--text-secondary)}
     <section class="card">
       <div class="card-head">
         <div class="card-title">
-          <h2>ใช้ข้อมูลจริงของคุณ · Bring your own data</h2>
-          <p>ไม่มีการเรียก API ภายนอก — ทุกอย่างคำนวณในเบราว์เซอร์</p>
+          <h2>Bring your own data</h2>
+          <p>No external API calls — everything is computed in your browser</p>
         </div>
       </div>
       <p style="margin:0 0 10px; font-size:13px; color:var(--text-secondary); line-height:1.6">
-        กดปุ่ม <strong>CSV</strong> แล้วเลือกไฟล์ราคาปิดรูปแบบกว้าง (wide format): คอลัมน์แรกเป็นวันที่
-        คอลัมน์ที่สองเป็นดัชนีอ้างอิง และคอลัมน์ถัดไปคือแต่ละกลุ่ม —
-        the second column is treated as the benchmark.
+        Click <strong>CSV</strong> and choose a wide-format file of closing prices: the first column is the
+        date, <strong>the second column is treated as the benchmark</strong>, and every further column is a
+        group. Up to 24 groups, and at least 40 usable rows.
       </p>
       <pre style="margin:0; overflow-x:auto; background:var(--surface-sunk); border:1px solid var(--border);
                   border-radius:var(--r-sm); padding:12px 14px; font-family:var(--font-mono);
@@ -670,8 +665,8 @@ footer.foot a{color:var(--text-secondary)}
   </main>
 
   <footer class="foot">
-    <span>SET Sector Rotation · แดชบอร์ดตัวอย่างเพื่อการศึกษา</span>
-    <span style="margin-left:auto">ไม่ใช่คำแนะนำการลงทุน · Not investment advice</span>
+    <span>SET Sector Rotation · an educational demo dashboard</span>
+    <span style="margin-left:auto">Not investment advice</span>
   </footer>
 </div>
 

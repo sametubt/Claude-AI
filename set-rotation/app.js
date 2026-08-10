@@ -19,45 +19,45 @@
 const SLOT_VARS = ['--s1', '--s2', '--s3', '--s4', '--s5', '--s6', '--s7', '--s8'];
 
 const QUADRANTS = {
-  lead:    { arrow: '↗', en: 'Leading',   th: 'นำตลาด',        v: '--q-lead' },
-  weak:    { arrow: '↘', en: 'Weakening', th: 'อ่อนแรง',  v: '--q-weak' },
-  lag:     { arrow: '↙', en: 'Lagging',   th: 'ล้าหลัง',  v: '--q-lag' },
-  improve: { arrow: '↖', en: 'Improving', th: 'ฟื้นตัว',  v: '--q-improve' }
+  lead:    { arrow: '↗', en: 'Leading',   v: '--q-lead' },
+  weak:    { arrow: '↘', en: 'Weakening', v: '--q-weak' },
+  lag:     { arrow: '↙', en: 'Lagging',   v: '--q-lag' },
+  improve: { arrow: '↖', en: 'Improving', v: '--q-improve' }
 };
 const QUAD_ORDER = ['lead', 'weak', 'lag', 'improve'];
 
 const UNIVERSES = {
   industry: {
-    bench: { code: 'SET', th: 'ดัชนีตลาดหลักทรัพย์', en: 'SET Index' },
+    bench: { code: 'SET', en: 'SET Index' },
     members: [
-      { code: 'AGRO',    th: 'เกษตรและอุตสาหกรรมอาหาร',   en: 'Agro & Food Industry' },
-      { code: 'CONSUMP', th: 'สินค้าอุปโภคบริโภค',         en: 'Consumer Products' },
-      { code: 'FINCIAL', th: 'ธุรกิจการเงิน',              en: 'Financials' },
-      { code: 'INDUS',   th: 'สินค้าอุตสาหกรรม',           en: 'Industrials' },
-      { code: 'PROPCON', th: 'อสังหาริมทรัพย์และก่อสร้าง', en: 'Property & Construction' },
-      { code: 'RESOURC', th: 'ทรัพยากร',                   en: 'Resources' },
-      { code: 'SERVICE', th: 'บริการ',                     en: 'Services' },
-      { code: 'TECH',    th: 'เทคโนโลยี',                  en: 'Technology' }
+      { code: 'AGRO',    en: 'Agro & Food Industry' },
+      { code: 'CONSUMP', en: 'Consumer Products' },
+      { code: 'FINCIAL', en: 'Financials' },
+      { code: 'INDUS',   en: 'Industrials' },
+      { code: 'PROPCON', en: 'Property & Construction' },
+      { code: 'RESOURC', en: 'Resources' },
+      { code: 'SERVICE', en: 'Services' },
+      { code: 'TECH',    en: 'Technology' }
     ]
   },
   sector: {
-    bench: { code: 'SET', th: 'ดัชนีตลาดหลักทรัพย์', en: 'SET Index' },
+    bench: { code: 'SET', en: 'SET Index' },
     members: [
-      { code: 'BANK',  th: 'ธนาคาร',                 en: 'Banking' },
-      { code: 'ENERG', th: 'พลังงานและสาธารณูปโภค',  en: 'Energy & Utilities' },
-      { code: 'ICT',   th: 'เทคโนโลยีสารสนเทศ',      en: 'Info & Comm Technology' },
-      { code: 'FOOD',  th: 'อาหารและเครื่องดื่ม',     en: 'Food & Beverage' },
-      { code: 'COMM',  th: 'พาณิชย์',                en: 'Commerce' },
-      { code: 'PROP',  th: 'พัฒนาอสังหาริมทรัพย์',   en: 'Property Development' },
-      { code: 'HELTH', th: 'การแพทย์',               en: 'Health Care Services' },
-      { code: 'TRANS', th: 'ขนส่งและโลจิสติกส์',      en: 'Transportation & Logistics' }
+      { code: 'BANK',  en: 'Banking' },
+      { code: 'ENERG', en: 'Energy & Utilities' },
+      { code: 'ICT',   en: 'Info & Comm Technology' },
+      { code: 'FOOD',  en: 'Food & Beverage' },
+      { code: 'COMM',  en: 'Commerce' },
+      { code: 'PROP',  en: 'Property Development' },
+      { code: 'HELTH', en: 'Health Care Services' },
+      { code: 'TRANS', en: 'Transportation & Logistics' }
     ]
   }
 };
 
 const PARAMS = {
-  D: { emaShort: 10, emaLong: 30, zWin: 60, momLag: 5,  perLabel: 'วัน' },
-  W: { emaShort: 10, emaLong: 30, zWin: 52, momLag: 4,  perLabel: 'สัปดาห์' }
+  D: { emaShort: 10, emaLong: 30, zWin: 60, momLag: 5,  perLabel: 'days' },
+  W: { emaShort: 10, emaLong: 30, zWin: 52, momLag: 4,  perLabel: 'weeks' }
 };
 
 const N_DAYS = 1800;          // ≈7 years of business days in the demo series
@@ -204,9 +204,9 @@ function splitCsvLine(line) {
 
 function parseCsv(text) {
   const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '');
-  if (lines.length < 40) throw new Error('ต้องมีอย่างน้อย 40 แถวข้อมูล จึงจะคำนวณ RRG ได้');
+  if (lines.length < 40) throw new Error('Need at least 40 rows of data to compute an RRG.');
   const header = splitCsvLine(lines[0]);
-  if (header.length < 3) throw new Error('ต้องมีอย่างน้อย 3 คอลัมน์: วันที่, ดัชนีอ้างอิง, และกลุ่มอย่างน้อยหนึ่งกลุ่ม');
+  if (header.length < 3) throw new Error('Need at least 3 columns: a date, a benchmark, and at least one group.');
   const cols = header.slice(0, MAX_CSV_COLS + 1);
   const codes = cols.slice(1).map((c, i) => (c || 'COL' + (i + 1)).slice(0, 14));
 
@@ -227,7 +227,7 @@ function parseCsv(text) {
     dates.push(d);
     row.forEach((v, c) => cells[c].push(v));
   }
-  if (dates.length < 40) throw new Error('อ่านแถวที่ใช้ได้น้อยกว่า 40 แถว — ตรวจรูปแบบวันที่และตัวเลข');
+  if (dates.length < 40) throw new Error('Fewer than 40 usable rows were read — check the date format and the numbers.');
 
   // Ascending by date.
   const order = dates.map((d, i) => i).sort((a, b) => dates[a] - dates[b]);
@@ -238,8 +238,8 @@ function parseCsv(text) {
   return {
     raw: { dates: sortedDates, benchCode: codes[0], series },
     universe: {
-      bench: { code: codes[0], th: '', en: codes[0] },
-      members: codes.slice(1).map((c) => ({ code: c, th: '', en: c }))
+      bench: { code: codes[0], en: codes[0] },
+      members: codes.slice(1).map((c) => ({ code: c, en: c }))
     }
   };
 }
@@ -522,13 +522,8 @@ function renderRRG(model, idx) {
   ];
   for (const [k, cx, cy, anchor] of corners) {
     const q = QUADRANTS[k];
-    const g = svgEl('g');
-    const t1 = svgText(`${q.arrow} ${q.en}`, { x: cx, y: cy, 'text-anchor': anchor },
-      { fill: cssVarRef(q.v), fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: '600', opacity: '.9' });
-    const t2 = svgText(q.th, { x: cx, y: cy + 14, 'text-anchor': anchor },
-      { fill: cssVarRef('--text-muted'), fontFamily: 'var(--font-ui)', fontSize: '11px' });
-    g.appendChild(t1); g.appendChild(t2);
-    svg.appendChild(g);
+    svg.appendChild(svgText(`${q.arrow} ${q.en}`, { x: cx, y: cy, 'text-anchor': anchor },
+      { fill: cssVarRef(q.v), fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: '600', opacity: '.9' }));
   }
 
   // axis titles
@@ -641,8 +636,8 @@ function renderRRG(model, idx) {
     marker.setAttribute('cx', h.px); marker.setAttribute('cy', h.py); marker.style.opacity = '.55';
     const q = QUADRANTS[h.quad];
     showTip(evt.clientX, evt.clientY, (n) => {
-      tipHeader(n, h.e.code, h.e.th || h.e.en);
-      tipRow(n, `${q.arrow} ${q.en} · ${q.th}`, '', q.v);
+      tipHeader(n, h.e.code, h.e.en);
+      tipRow(n, `${q.arrow} ${q.en}`, '', q.v);
       tipRow(n, 'RS-Ratio', fmt2(h.e.rsr[idx]));
       tipRow(n, 'RS-Momentum', fmt2(h.e.rsm[idx]));
       tipRow(n, 'Heading', Math.round(headingOf(h.e.rsr[idx], h.e.rsm[idx])) + '°');
@@ -669,7 +664,6 @@ function renderQuadLegend() {
     a.style.color = cssVarRef(q.v);
     item.appendChild(a);
     item.appendChild(document.createTextNode(q.en));
-    item.appendChild(elem('span', 'th', q.th));
     box.appendChild(item);
   }
 }
@@ -701,15 +695,15 @@ function renderLeaderboard(rows) {
 
     const name = elem('span', 'lb-name');
     name.appendChild(elem('span', 'lb-code', r.e.code));
-    name.appendChild(elem('span', 'lb-sub', r.e.th || r.e.en));
+    name.appendChild(elem('span', 'lb-sub', r.e.en));
     row.appendChild(name);
 
     const tag = elem('span', 'qtag');
     const arrow = elem('span', 'arrow', q.arrow);
     arrow.style.color = cssVarRef(q.v);
     tag.appendChild(arrow);
-    tag.appendChild(elem('span', 'word', q.th));
-    tag.title = `${q.en} · ${q.th}`;
+    tag.appendChild(elem('span', 'word', q.en));
+    tag.title = q.en;
     row.appendChild(tag);
 
     row.appendChild(numCell(r.rsr, r.dRsr, ''));
@@ -718,8 +712,8 @@ function renderLeaderboard(rows) {
     row.addEventListener('click', () => setFocus(STATE.focus === r.e.code ? null : r.e.code));
     row.addEventListener('pointerenter', (evt) => {
       showTip(evt.clientX, evt.clientY, (n) => {
-        tipHeader(n, r.e.code, r.e.th || r.e.en);
-        tipRow(n, `${q.arrow} ${q.en} · ${q.th}`, '', q.v);
+        tipHeader(n, r.e.code, r.e.en);
+        tipRow(n, `${q.arrow} ${q.en}`, '', q.v);
         tipRow(n, 'RS-Ratio', fmt2(r.rsr));
         tipRow(n, 'RS-Momentum', fmt2(r.rsm));
         tipRow(n, `RS ${STATE.tail}${STATE.timeframe === 'W' ? 'w' : 'd'}`, signed(r.rsChg, 1) + '%');
@@ -738,7 +732,7 @@ function renderBreadth(rows) {
   const counts = { lead: 0, weak: 0, lag: 0, improve: 0 };
   for (const r of rows) counts[r.quad]++;
 
-  foot.appendChild(elem('span', 'cap', `Breadth · ภาพรวม (${rows.length} กลุ่ม)`));
+  foot.appendChild(elem('span', 'cap', `Breadth · ${rows.length} groups`));
 
   const bar = elem('div', 'breadth');
   bar.setAttribute('role', 'img');
@@ -763,8 +757,8 @@ function renderBreadth(rows) {
     top.appendChild(a);
     top.appendChild(elem('span', 'n', String(counts[k])));
     cell.appendChild(top);
-    cell.appendChild(elem('span', 'nm', q.th));
-    cell.title = `${q.en} · ${q.th}`;
+    cell.appendChild(elem('span', 'nm', q.en));
+    cell.title = q.en;
     tally.appendChild(cell);
   }
   foot.appendChild(tally);
@@ -807,7 +801,7 @@ function renderRS(model, idx) {
   });
 
   if (!chosen.length || idx <= start) {
-    svg.appendChild(svgText('เลือกกลุ่มอย่างน้อยหนึ่งกลุ่มด้านล่าง · Select at least one group below',
+    svg.appendChild(svgText('Select at least one group below',
       { x: W / 2, y: H / 2, 'text-anchor': 'middle' },
       { fill: cssVarRef('--text-muted'), fontSize: '13px', fontFamily: 'var(--font-ui)' }));
     wrap.textContent = ''; wrap.appendChild(svg);
@@ -924,7 +918,7 @@ function renderRSLegend(model) {
     key.style.background = cssVarRef(SLOT_VARS[e.slot]);
     b.appendChild(key);
     b.appendChild(elem('span', 'code', e.code));
-    b.title = e.th || e.en;
+    b.title = e.en;
     b.addEventListener('click', () => {
       if (STATE.selected.has(e.code)) STATE.selected.delete(e.code);
       else STATE.selected.add(e.code);
@@ -999,7 +993,7 @@ function renderQuadrantHistory(model, idx, rows) {
         const bb = g.getBoundingClientRect();
         showTip(p && p.clientX != null ? p.clientX : bb.left, p && p.clientY != null ? p.clientY : bb.top, (node) => {
           tipHeader(node, r.e.code, dfFull.format(model.dates[t]));
-          tipRow(node, `${q.arrow} ${q.en} · ${q.th}`, '', q.v);
+          tipRow(node, `${q.arrow} ${q.en}`, '', q.v);
           tipRow(node, 'RS-Ratio', fmt2(rsr));
           tipRow(node, 'RS-Momentum', fmt2(rsm));
         });
@@ -1055,7 +1049,7 @@ function renderQuadrantTable(model, rows, startT, cols, host) {
 
 const TABLE_COLS = [
   { key: 'rank', label: '#', num: false },
-  { key: 'name', label: 'Group · กลุ่ม', num: false },
+  { key: 'name', label: 'Group', num: false },
   { key: 'quad', label: 'Quadrant' },
   { key: 'rsr', label: 'RS-Ratio' },
   { key: 'rsm', label: 'RS-Mom' },
@@ -1115,7 +1109,7 @@ function renderTable(rows) {
 
     const tdName = elem('td');
     tdName.appendChild(elem('span', 'code', r.e.code));
-    if (r.e.th || r.e.en) tdName.appendChild(elem('span', 'th-name', r.e.th || r.e.en));
+    if (r.e.en) tdName.appendChild(elem('span', 'sub-name', r.e.en));
     tr.appendChild(tdName);
 
     const tdQ = elem('td');
@@ -1124,7 +1118,7 @@ function renderTable(rows) {
     arrow.style.fontFamily = 'var(--font-mono)';
     arrow.style.fontWeight = '600';
     tdQ.appendChild(arrow);
-    tdQ.appendChild(document.createTextNode(`${q.en} · ${q.th}`));
+    tdQ.appendChild(document.createTextNode(q.en));
     tdQ.style.textAlign = 'left';
     tr.appendChild(tdQ);
 
@@ -1170,7 +1164,7 @@ function render() {
   $('#scrubDate').textContent = dfFull.format(d);
   $('#scrubMeta').textContent =
     `${STATE.idx - model.firstValid + 1} / ${model.lastIndex - model.firstValid + 1} ${model.p.perLabel}` +
-    (model.p.adapted ? ` · หน้าต่างสั้นลง ${model.p.emaShort}/${model.p.emaLong}/${model.p.zWin}` : '');
+    (model.p.adapted ? ` · shortened windows ${model.p.emaShort}/${model.p.emaLong}/${model.p.zWin}` : '');
   $('#benchName').textContent = model.bench.en || model.bench.code;
   $('#rsBench').textContent = model.bench.code;
 
@@ -1195,13 +1189,12 @@ function showInsufficientData(model) {
   const need = warmupCost(model.p) + 20;
   box.appendChild(elem('span', 'mark', '!'));
   const body = elem('div');
-  const h = elem('strong', null, 'ข้อมูลไม่พอสำหรับคำนวณ RRG · Not enough history');
+  const h = elem('strong', null, 'Not enough history to compute an RRG');
   body.appendChild(h);
   body.appendChild(document.createElement('br'));
   body.appendChild(document.createTextNode(
-    `ช่วงเวลานี้มีข้อมูล ${model.dates.length} ${model.p.perLabel} แต่ต้องใช้อย่างน้อยราว ${need} ` +
-    `— ลองสลับไปที่ Daily หรืออัปโหลดไฟล์ที่มีประวัติยาวกว่านี้. ` +
-    `This timeframe has ${model.dates.length} periods; the calculation needs about ${need}.`));
+    `This timeframe has ${model.dates.length} ${model.p.perLabel}; the calculation needs about ${need}. ` +
+    `Switch to Daily, or load a file with a longer history.`));
   box.appendChild(body);
   box.classList.remove('hidden');
   $('#dashboard').classList.add('hidden');
@@ -1328,7 +1321,7 @@ $('#csvInput').addEventListener('change', (evt) => {
       $('#resetBtn').classList.remove('hidden');
       render();
     } catch (err) {
-      alert('อ่านไฟล์ไม่สำเร็จ · Could not read the file:\n\n' + err.message);
+      alert('Could not read the file:\n\n' + err.message);
     }
     evt.target.value = '';
   };
