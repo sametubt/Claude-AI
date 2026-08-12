@@ -206,6 +206,20 @@ body::before{
 .btn[aria-pressed="true"]{background:var(--text-primary); color:var(--plane); border-color:var(--text-primary)}
 .btn .glyph{font-family:var(--font-mono); font-size:11px}
 
+.picker{
+  appearance:none; cursor:pointer;
+  background:var(--surface-sunk); border:1px solid var(--border); color:var(--text-primary);
+  font-family:var(--font-mono); font-size:12.5px; font-weight:500;
+  padding:8px 28px 8px 11px; border-radius:var(--r-sm); max-width:190px;
+  background-image:linear-gradient(45deg,transparent 50%,var(--text-muted) 50%),
+                   linear-gradient(135deg,var(--text-muted) 50%,transparent 50%);
+  background-position:calc(100% - 15px) calc(50% + 1px), calc(100% - 11px) calc(50% + 1px);
+  background-size:4px 4px, 4px 4px;
+  background-repeat:no-repeat;
+}
+.picker:hover{border-color:var(--border-strong)}
+.picker:focus-visible{outline:2px solid var(--text-primary); outline-offset:2px}
+
 /* scrubber */
 .scrub{flex:1 1 300px; min-width:220px}
 .scrub-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:2px}
@@ -393,6 +407,15 @@ table.data td .code{font-family:var(--font-mono); font-weight:600; letter-spacin
 .note .mark{font-family:var(--font-mono); font-size:14px; color:var(--q-weak); line-height:1.3; flex:none}
 
 .glossary{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:14px 22px}
+.formats{display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:18px}
+.formats h3{margin:0 0 5px; font-family:var(--font-mono); font-size:11.5px; letter-spacing:.06em;
+  text-transform:uppercase; color:var(--text-primary); font-weight:600}
+.formats > div > p{margin:0 0 9px; font-size:12.5px; color:var(--text-secondary); line-height:1.55}
+.formats pre, pre.sample{margin:0; overflow-x:auto; background:var(--surface-sunk);
+  border:1px solid var(--border); border-radius:var(--r-sm); padding:11px 13px;
+  font-family:var(--font-mono); font-size:11.5px; color:var(--text-secondary); line-height:1.65}
+code{font-family:var(--font-mono); font-size:.94em; color:var(--text-secondary)}
+
 .glossary dt{font-family:var(--font-mono); font-size:11.5px; letter-spacing:.05em;
   color:var(--text-primary); font-weight:500; margin-bottom:3px}
 .glossary dd{margin:0 0 2px; font-size:12.5px; color:var(--text-secondary); line-height:1.55}
@@ -480,6 +503,11 @@ footer.foot a{color:var(--text-secondary)}
       </div>
     </div>
 
+    <div class="control hidden" id="benchControl">
+      <label class="label" for="benchSel">Benchmark</label>
+      <select id="benchSel" class="picker"></select>
+    </div>
+
     <div class="control scrub">
       <div class="scrub-head">
         <span class="scrub-date" id="scrubDate">—</span>
@@ -493,10 +521,10 @@ footer.foot a{color:var(--text-secondary)}
       <button class="btn" id="playBtn" type="button" aria-pressed="false">
         <span class="glyph" id="playGlyph" aria-hidden="true">▶</span><span id="playLabel">Play</span>
       </button>
-      <button class="btn" id="csvBtn" type="button" title="Load real closing prices from a CSV">
-        <span class="glyph" aria-hidden="true">↥</span>CSV
+      <button class="btn" id="csvBtn" type="button" title="Load real closing prices — select one wide file, or one file per index">
+        <span class="glyph" aria-hidden="true">↥</span>Load data
       </button>
-      <input type="file" id="csvInput" accept=".csv,text/csv" />
+      <input type="file" id="csvInput" accept=".csv,.txt,.tsv,text/csv,text/plain" multiple />
       <button class="btn hidden" id="resetBtn" type="button">Demo</button>
     </div>
   </div>
@@ -649,17 +677,37 @@ footer.foot a{color:var(--text-secondary)}
           <p>No external API calls — everything is computed in your browser</p>
         </div>
       </div>
-      <p style="margin:0 0 10px; font-size:13px; color:var(--text-secondary); line-height:1.6">
-        Click <strong>CSV</strong> and choose a wide-format file of closing prices: the first column is the
-        date, <strong>the second column is treated as the benchmark</strong>, and every further column is a
-        group. Up to 24 groups, and at least 40 usable rows.
+      <p style="margin:0 0 14px; font-size:13px; color:var(--text-secondary); line-height:1.6">
+        Click <strong>Load data</strong> and pick your files. Two shapes work, and you can mix them.
+        Pick the benchmark from the dropdown afterwards — the dashboard needs at least 40 dates that every
+        series shares.
       </p>
-      <pre style="margin:0; overflow-x:auto; background:var(--surface-sunk); border:1px solid var(--border);
-                  border-radius:var(--r-sm); padding:12px 14px; font-family:var(--font-mono);
-                  font-size:12px; color:var(--text-secondary); line-height:1.6">date,SET,BANK,ENERG,ICT,FOOD
-2025-01-02,1385.21,412.90,22140.5,178.33,11902.7
-2025-01-03,1379.88,410.12,22088.1,179.90,11888.4
-…</pre>
+      <div class="formats">
+        <div>
+          <h3>One file per index</h3>
+          <p>The usual export from a broker or a data site. <strong>Select them all at once</strong> — the
+            filename becomes the series name, and the Close or Price column is found automatically.</p>
+          <pre>SET.csv    BANK.csv    ENERG.csv
+
+Date,Price,Open,High,Low,Vol.,Change %
+08/11/2026,"1,385.21","1,381.00",…
+08/10/2026,"1,379.88","1,376.40",…</pre>
+        </div>
+        <div>
+          <h3>One wide file</h3>
+          <p>A date column followed by one column per index. Handy if you assemble the data yourself in a
+            spreadsheet.</p>
+          <pre>date,SET,BANK,ENERG,ICT,FOOD
+2026-01-02,1385.21,412.90,22140.5,178.33,11902.7
+2026-01-05,1379.88,410.12,22088.1,179.90,11888.4</pre>
+        </div>
+      </div>
+      <p style="margin:14px 0 0; font-size:12.5px; color:var(--text-muted); line-height:1.6">
+        Commas in numbers, semicolon or tab delimiters, quoted fields, newest-row-first ordering and
+        <code>DD/MM/YYYY</code> or <code>MM/DD/YYYY</code> dates are all handled. Day/month order is inferred
+        from the file — check the date under the scrubber after loading to confirm it read them the way you
+        meant.
+      </p>
     </section>
 
   </main>

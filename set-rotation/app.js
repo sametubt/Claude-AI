@@ -184,9 +184,22 @@ function buildDemoSeries() {
   return { dates, benchCode: 'SET', series: Object.assign({ SET: bench }, series) };
 }
 
-/* ── CSV ────────────────────────────────────────────────────────────────── */
+/* ── file import ────────────────────────────────────────────────────────────
+   Real price history arrives in two shapes, so both are accepted:
 
-function splitCsvLine(line) {
+     WIDE  one file, one column per index   date,SET,BANK,ENERG,…
+     LONG  one file per index, the shape every broker and data site exports
+           (Date,Price,Open,High,Low,…) — drop them all in at once and the
+           filename becomes the series name.
+
+   Dates and numbers are messier in the wild than in a spec: thousands
+   separators, quoted fields, semicolon or tab delimiters, newest-row-first
+   ordering, and day/month order that differs by exporter. All handled here.
+   ------------------------------------------------------------------------ */
+
+const MIN_ROWS = 40;
+
+function splitLine(line, delim) {
   const out = [];
   let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
@@ -195,52 +208,196 @@ function splitCsvLine(line) {
       if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else inQ = false; }
       else cur += c;
     } else if (c === '"') inQ = true;
-    else if (c === ',' || c === ';' || c === '\t') { out.push(cur); cur = ''; }
+    else if (c === delim) { out.push(cur); cur = ''; }
     else cur += c;
   }
   out.push(cur);
-  return out.map((s) => s.trim());
+  return out.map((s) => s.trim().replace(/^"|"$/g, ''));
 }
 
-function parseCsv(text) {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '');
-  if (lines.length < 40) throw new Error('Need at least 40 rows of data to compute an RRG.');
-  const header = splitCsvLine(lines[0]);
-  if (header.length < 3) throw new Error('Need at least 3 columns: a date, a benchmark, and at least one group.');
-  const cols = header.slice(0, MAX_CSV_COLS + 1);
-  const codes = cols.slice(1).map((c, i) => (c || 'COL' + (i + 1)).slice(0, 14));
-
-  const dates = [];
-  const cells = codes.map(() => []);
-  for (let r = 1; r < lines.length; r++) {
-    const f = splitCsvLine(lines[r]);
-    const d = new Date(f[0]);
-    if (isNaN(d.getTime())) continue;
-    let ok = true;
-    const row = [];
-    for (let c = 0; c < codes.length; c++) {
-      const v = parseFloat(String(f[c + 1]).replace(/[, ]/g, ''));
-      if (!isFinite(v) || v <= 0) { ok = false; break; }
-      row.push(v);
-    }
-    if (!ok) continue;
-    dates.push(d);
-    row.forEach((v, c) => cells[c].push(v));
+function sniffDelimiter(line) {
+  let best = ',', bestN = -1;
+  for (const d of [',', ';', '\t', '|']) {
+    const n = splitLine(line, d).length;
+    if (n > bestN) { bestN = n; best = d; }
   }
-  if (dates.length < 40) throw new Error('Fewer than 40 usable rows were read — check the date format and the numbers.');
+  return best;
+}
 
-  // Ascending by date.
-  const order = dates.map((d, i) => i).sort((a, b) => dates[a] - dates[b]);
-  const sortedDates = order.map((i) => dates[i]);
-  const series = {};
-  codes.forEach((code, c) => { series[code] = order.map((i) => cells[c][i]); });
+/** "1,385.21" / "1 385.21" / "(12.5)" → number. NaN when it isn't one. */
+function parseNumber(raw) {
+  if (raw == null) return NaN;
+  let s = String(raw).trim().replace(/[\s ']/g, '');
+  if (!s || s === '-' || s === 'n/a' || s === 'N/A') return NaN;
+  const neg = /^\(.*\)$/.test(s);
+  if (neg) s = s.slice(1, -1);
+  s = s.replace(/[^\d.,-]/g, '');
+  // Decide which separator is the decimal one by whichever comes last.
+  const lastC = s.lastIndexOf(','), lastD = s.lastIndexOf('.');
+  if (lastC > -1 && lastD > -1) {
+    s = lastC > lastD ? s.replace(/\./g, '').replace(',', '.') : s.replace(/,/g, '');
+  } else if (lastC > -1) {
+    // a lone comma is a decimal mark only when it splits off 1–2 digits
+    s = /,\d{1,2}$/.test(s) ? s.replace(',', '.') : s.replace(/,/g, '');
+  }
+  const v = parseFloat(s);
+  return neg ? -v : v;
+}
 
-  return {
-    raw: { dates: sortedDates, benchCode: codes[0], series },
-    universe: {
-      bench: { code: codes[0], en: codes[0] },
-      members: codes.slice(1).map((c) => ({ code: c, en: c }))
+const ISO_RE = /^(\d{4})-(\d{1,2})-(\d{1,2})/;
+const SLASH_RE = /^(\d{1,2})[/.\-](\d{1,2})[/.\-](\d{2,4})$/;
+
+/** Day/month order can't be judged per row, so decide once for the whole
+ *  column: a value above 12 in either slot settles it. */
+function makeDateParser(samples) {
+  let dmyEvidence = 0, mdyEvidence = 0;
+  for (const s of samples) {
+    const m = SLASH_RE.exec(s);
+    if (!m) continue;
+    const a = +m[1], b = +m[2];
+    if (a > 12 && b <= 12) dmyEvidence++;
+    else if (b > 12 && a <= 12) mdyEvidence++;
+  }
+  const dayFirst = dmyEvidence >= mdyEvidence && dmyEvidence > 0;
+  const parse = (s) => {
+    if (!s) return null;
+    const t = String(s).trim().replace(/^"|"$/g, '');
+    const iso = ISO_RE.exec(t);
+    if (iso) return new Date(+iso[1], +iso[2] - 1, +iso[3]);
+    const sl = SLASH_RE.exec(t);
+    if (sl) {
+      let y = +sl[3];
+      if (y < 100) y += y < 70 ? 2000 : 1900;
+      const a = +sl[1], b = +sl[2];
+      const day = dayFirst ? a : b, mon = dayFirst ? b : a;
+      if (mon < 1 || mon > 12 || day < 1 || day > 31) return null;
+      return new Date(y, mon - 1, day);
     }
+    const d = new Date(t);                       // "Jan 02, 2025", "02 Jan 2025"
+    return isNaN(d.getTime()) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  };
+  parse.dayFirst = dayFirst;
+  return parse;
+}
+
+const dayKey = (d) => d.getFullYear() * 10000 + d.getMonth() * 100 + d.getDate();
+const cleanCode = (s) => String(s).trim().replace(/\.[a-z0-9]+$/i, '')
+  .replace(/[^A-Za-z0-9&.\- ]/g, '').trim().replace(/\s+/g, '-').slice(0, 14).toUpperCase();
+
+const DATE_HDR = /^(date|time|datetime|day)$/i;
+const CLOSE_HDR = /^(adj[\s_]*close|close\*?|close|price|last|ราคา)$/i;
+
+/** One file → either a wide table of many series, or one long series. */
+function parseFile(fileName, text) {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '');
+  if (lines.length < 2) throw new Error(`${fileName}: the file is empty.`);
+  const delim = sniffDelimiter(lines[0]);
+  const rows = lines.map((l) => splitLine(l, delim));
+
+  const head = rows[0];
+  const looksNumeric = (c) => isFinite(parseNumber(c));
+  const hasHeader = head.some((c) => c !== '' && !looksNumeric(c) && !makeDateParser([c])(c));
+  const header = hasHeader ? head : head.map((_, i) => (i === 0 ? 'date' : 'col' + i));
+  const body = hasHeader ? rows.slice(1) : rows;
+  if (!body.length) throw new Error(`${fileName}: no data rows below the header.`);
+
+  // Date column: the one the header names, else the first column that parses.
+  let dateCol = header.findIndex((h) => DATE_HDR.test(h));
+  if (dateCol < 0) {
+    const probe = body.slice(0, 25);
+    dateCol = header.findIndex((_, c) => {
+      const p = makeDateParser(probe.map((r) => r[c]));
+      return probe.filter((r) => p(r[c])).length >= Math.max(3, probe.length * 0.8);
+    });
+  }
+  if (dateCol < 0) throw new Error(`${fileName}: couldn't find a date column.`);
+  const parseDate = makeDateParser(body.map((r) => r[dateCol]));
+
+  const valueCols = header.map((h, c) => ({ h, c }))
+    .filter(({ c }) => c !== dateCol)
+    .filter(({ c }) => body.slice(0, 25).some((r) => isFinite(parseNumber(r[c]))));
+  if (!valueCols.length) throw new Error(`${fileName}: no numeric columns found.`);
+
+  const named = valueCols.filter(({ h }) => CLOSE_HDR.test(h));
+  // A close/price column plus OHLC siblings is one index's history, not a table
+  // of many indices — treat it as long even though several columns are numeric.
+  const isLong = named.length === 1 || valueCols.length === 1 ||
+    header.some((h) => /^(open|high|low|vol\.?|volume|change ?%?)$/i.test(h));
+
+  const read = (cols) => {
+    const seen = new Map();
+    for (const r of body) {
+      const d = parseDate(r[dateCol]);
+      if (!d) continue;
+      const vals = cols.map(({ c }) => parseNumber(r[c]));
+      if (vals.some((v) => !isFinite(v) || v <= 0)) continue;
+      seen.set(dayKey(d), { d, vals });                // later row wins on dupes
+    }
+    return [...seen.values()].sort((a, b) => a.d - b.d);
+  };
+
+  if (isLong) {
+    const col = named.length === 1 ? named[0] : valueCols[0];
+    const recs = read([col]);
+    const stem = cleanCode(fileName);
+    const code = CLOSE_HDR.test(col.h) || !hasHeader ? (stem || 'SERIES') : (cleanCode(col.h) || stem);
+    return { kind: 'long', code, dates: recs.map((r) => r.d), values: recs.map((r) => r.vals[0]), file: fileName };
+  }
+
+  const cols = valueCols.slice(0, MAX_CSV_COLS);
+  const recs = read(cols);
+  const series = {};
+  cols.forEach(({ h }, i) => { series[cleanCode(h) || 'COL' + (i + 1)] = recs.map((r) => r.vals[i]); });
+  return { kind: 'wide', codes: Object.keys(series), dates: recs.map((r) => r.d), series, file: fileName };
+}
+
+/** Combine parsed files onto the dates they all share. */
+function buildDataset(parsedFiles) {
+  const wide = parsedFiles.filter((p) => p.kind === 'wide');
+  const longs = parsedFiles.filter((p) => p.kind === 'long');
+
+  const byCode = new Map();      // code → Map(dayKey → value)
+  const dateOf = new Map();      // dayKey → Date
+  const add = (code, dates, values) => {
+    let base = code || 'SERIES', name = base, n = 2;
+    while (byCode.has(name)) name = `${base}-${n++}`;
+    const m = new Map();
+    dates.forEach((d, i) => { m.set(dayKey(d), values[i]); dateOf.set(dayKey(d), d); });
+    byCode.set(name, m);
+  };
+  for (const w of wide) for (const c of w.codes) add(c, w.dates, w.series[c]);
+  for (const l of longs) add(l.code, l.dates, l.values);
+
+  if (byCode.size < 2) {
+    throw new Error('Need at least two series — a benchmark and one group. ' +
+      'Select several files at once, or use one wide file with a column per index.');
+  }
+  if (byCode.size > MAX_CSV_COLS) {
+    throw new Error(`Too many series (${byCode.size}). The dashboard handles up to ${MAX_CSV_COLS}.`);
+  }
+
+  const codes = [...byCode.keys()];
+  const shared = [...dateOf.keys()]
+    .filter((k) => codes.every((c) => byCode.get(c).has(k)))
+    .sort((a, b) => a - b);
+
+  if (shared.length < MIN_ROWS) {
+    const per = codes.map((c) => `${c} ${byCode.get(c).size}`).join(', ');
+    throw new Error(
+      `Only ${shared.length} dates are common to every series, and at least ${MIN_ROWS} are needed. ` +
+      `Rows read per series: ${per}. Check that the files cover the same period and date format.`);
+  }
+
+  const series = {};
+  for (const c of codes) series[c] = shared.map((k) => byCode.get(c).get(k));
+  const benchCode = codes.find((c) => /^set$|^seti$|index|benchmark/i.test(c)) || codes[0];
+  return { dates: shared.map((k) => dateOf.get(k)), benchCode, series };
+}
+
+function universeFrom(raw) {
+  return {
+    bench: { code: raw.benchCode, en: raw.benchCode },
+    members: Object.keys(raw.series).filter((c) => c !== raw.benchCode).map((c) => ({ code: c, en: c }))
   };
 }
 
@@ -695,7 +852,8 @@ function renderLeaderboard(rows) {
 
     const name = elem('span', 'lb-name');
     name.appendChild(elem('span', 'lb-code', r.e.code));
-    name.appendChild(elem('span', 'lb-sub', r.e.en));
+    // imported series have no name beyond their code — don't print it twice
+    if (r.e.en && r.e.en !== r.e.code) name.appendChild(elem('span', 'lb-sub', r.e.en));
     row.appendChild(name);
 
     const tag = elem('span', 'qtag');
@@ -1109,7 +1267,7 @@ function renderTable(rows) {
 
     const tdName = elem('td');
     tdName.appendChild(elem('span', 'code', r.e.code));
-    if (r.e.en) tdName.appendChild(elem('span', 'sub-name', r.e.en));
+    if (r.e.en && r.e.en !== r.e.code) tdName.appendChild(elem('span', 'sub-name', r.e.en));
     tr.appendChild(tdName);
 
     const tdQ = elem('td');
@@ -1284,48 +1442,85 @@ $('#themeBtn').addEventListener('click', () => {
   applyTheme(cur === 'auto' ? 'light' : cur === 'light' ? 'dark' : 'auto');
 });
 
-/* CSV */
+/* file import */
 $('#csvBtn').addEventListener('click', () => $('#csvInput').click());
-$('#csvInput').addEventListener('change', (evt) => {
-  const file = evt.target.files && evt.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try {
-      const { raw, universe } = parseCsv(String(reader.result));
-      STATE.raw = raw;
-      STATE.csvUniverse = universe;
-      STATE.dataStamp = 'csv:' + Date.now();
-      STATE.universeKey = 'csv';
-      STATE.focus = null;
-      STATE.selected.clear();
-      STATE.idx = null;
-      computeCache.clear();
 
-      const seg = $('#universeSeg');
-      [...seg.querySelectorAll('button')].forEach((b) => b.setAttribute('aria-pressed', 'false'));
-      let csvBtn = seg.querySelector('button[data-universe="csv"]');
-      if (!csvBtn) {
-        csvBtn = elem('button', null, 'CSV');
-        csvBtn.type = 'button';
-        csvBtn.setAttribute('data-universe', 'csv');
-        seg.appendChild(csvBtn);
-      }
-      csvBtn.setAttribute('aria-pressed', 'true');
+$('#csvInput').addEventListener('change', async (evt) => {
+  const files = [...(evt.target.files || [])];
+  evt.target.value = '';
+  if (!files.length) return;
+  try {
+    const parsed = [];
+    for (const f of files) parsed.push(parseFile(f.name, await f.text()));
+    adoptDataset(buildDataset(parsed), files.length === 1 ? files[0].name : `${files.length} files`);
+  } catch (err) {
+    alert('Could not read the data:\n\n' + err.message);
+  }
+});
 
-      const chip = $('#sourceChip');
-      chip.classList.remove('is-demo');
-      chip.classList.add('is-live');
-      $('#sourceLabel').textContent = file.name.slice(0, 28);
-      $('#demoNote').classList.add('hidden');
-      $('#resetBtn').classList.remove('hidden');
-      render();
-    } catch (err) {
-      alert('Could not read the file:\n\n' + err.message);
-    }
-    evt.target.value = '';
-  };
-  reader.readAsText(file);
+/** Swap in an imported dataset and reconfigure the controls around it. */
+function adoptDataset(raw, label) {
+  STATE.raw = raw;
+  STATE.csvUniverse = universeFrom(raw);
+  STATE.dataStamp = 'file:' + Date.now();
+  STATE.universeKey = 'csv';
+  STATE.focus = null;
+  STATE.selected.clear();
+  STATE.idx = null;
+  computeCache.clear();
+
+  const seg = $('#universeSeg');
+  [...seg.querySelectorAll('button')].forEach((b) => b.setAttribute('aria-pressed', 'false'));
+  let csvBtn = seg.querySelector('button[data-universe="csv"]');
+  if (!csvBtn) {
+    csvBtn = elem('button', null, 'My data');
+    csvBtn.type = 'button';
+    csvBtn.setAttribute('data-universe', 'csv');
+    seg.appendChild(csvBtn);
+  }
+  csvBtn.setAttribute('aria-pressed', 'true');
+
+  const chip = $('#sourceChip');
+  chip.classList.remove('is-demo');
+  chip.classList.add('is-live');
+  $('#sourceLabel').textContent = label.slice(0, 28);
+  chip.title = `${Object.keys(raw.series).length} series · ${raw.dates.length} rows · ` +
+    `${dfFull.format(raw.dates[0])} → ${dfFull.format(raw.dates[raw.dates.length - 1])}`;
+  $('#demoNote').classList.add('hidden');
+  $('#resetBtn').classList.remove('hidden');
+
+  renderBenchPicker();
+  render();
+}
+
+/** Which series is the benchmark can't be guessed reliably across exports,
+ *  so once real data is loaded the choice becomes an explicit control. */
+function renderBenchPicker() {
+  const wrap = $('#benchControl');
+  const sel = $('#benchSel');
+  if (STATE.universeKey !== 'csv' || !STATE.raw || STATE.dataStamp === 'demo') {
+    wrap.classList.add('hidden');
+    return;
+  }
+  wrap.classList.remove('hidden');
+  sel.textContent = '';
+  for (const code of Object.keys(STATE.raw.series)) {
+    const o = document.createElement('option');
+    o.value = code;
+    o.textContent = code;
+    if (code === STATE.raw.benchCode) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+$('#benchSel').addEventListener('change', (evt) => {
+  STATE.raw.benchCode = evt.target.value;
+  STATE.csvUniverse = universeFrom(STATE.raw);
+  STATE.focus = null;
+  STATE.selected.clear();
+  STATE.idx = null;
+  computeCache.clear();
+  render();
 });
 
 $('#resetBtn').addEventListener('click', () => {
@@ -1345,9 +1540,11 @@ $('#resetBtn').addEventListener('click', () => {
   const chip = $('#sourceChip');
   chip.classList.add('is-demo');
   chip.classList.remove('is-live');
+  chip.title = '';
   $('#sourceLabel').textContent = 'Demo data';
   $('#demoNote').classList.remove('hidden');
   $('#resetBtn').classList.add('hidden');
+  renderBenchPicker();
   render();
 });
 
